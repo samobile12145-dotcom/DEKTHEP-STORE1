@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KeyAuth Dashboard</title>
+<style>
+:root{--bg:#0e0f10;--side:#18191a;--panel:#191a1c;--panel2:#111213;--line:#25272a;--text:#f4f5f6;--muted:#777d85;--blue:#2458ee;--purple:#7628d9;--cyan:#079fc8;--green:#079b58;--orange:#df4d08;--red:#df1721}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font:13px/1.45 Inter,Segoe UI,Tahoma,Arial,sans-serif}button,input,select{font:inherit}button{cursor:pointer}
+.hidden{display:none!important}.login{min-height:100vh;display:grid;place-items:center;padding:20px;background:#0b0c0d}.loginbox{width:440px;max-width:100%;background:var(--panel);border:1px solid #2a2d31;border-radius:12px;padding:30px;box-shadow:0 20px 80px #0008}.loginlogo{font-size:29px;font-weight:900;text-align:center;margin-bottom:4px}.loginbox>p{text-align:center;color:var(--muted);margin:0 0 22px}.tabs{display:grid;grid-template-columns:1fr 1fr;background:#101112;border-radius:7px;padding:3px;margin-bottom:18px}.tab{border:0;background:transparent;color:#8e949c;padding:9px;border-radius:5px}.tab.active{background:#22252a;color:#fff}.field{margin:12px 0}.field label{display:block;margin-bottom:6px;color:#d7d9dd}.input,.select{width:100%;height:40px;border:1px solid #292c30;border-radius:6px;background:#101112;color:#fff;padding:0 12px;outline:none}.input:focus,.select:focus{border-color:#4168df}.btn{border:0;border-radius:5px;color:#fff;padding:9px 13px;font-weight:700;transition:.15s}.btn:hover{filter:brightness(1.08);transform:translateY(-1px)}.btn.blue{background:var(--blue)}.btn.green{background:var(--green)}.btn.purple{background:var(--purple)}.btn.cyan{background:var(--cyan)}.btn.orange{background:var(--orange)}.btn.red{background:var(--red)}.btn.gray{background:#303338}.wide{width:100%;height:42px}.error{color:#ff6868;text-align:center;min-height:20px;margin-top:9px}.hint{text-align:center;color:#686e76;font-size:11px;margin-top:14px}
+.layout{min-height:100vh}.side{position:fixed;left:0;top:0;bottom:0;width:230px;background:var(--side);border-right:1px solid #222427;padding:16px 13px;overflow:auto;z-index:10}.brand{font-size:23px;font-weight:900;letter-spacing:-.8px;margin:9px 12px 28px}.license-select{background:#101112;border:1px solid #151719;border-radius:10px;padding:12px 11px;margin:0 1px 16px}.license-select small{color:#9a9fa7}.license-select b{display:block;font-size:15px;margin-top:2px}.license-select .chev{float:right;color:#aaa;font-size:16px}.nav{display:flex;align-items:center;gap:10px;color:#dedfe2;text-decoration:none;border-radius:8px;padding:11px 10px;margin:2px 0}.nav:hover{background:#202225}.nav.active{background:var(--blue);box-shadow:0 3px 12px #2458ee55;color:#fff}.ico{width:15px;text-align:center}.nav .crown{margin-left:auto;color:#ffd000}.main{margin-left:230px;min-height:100vh;padding:0 14px 15px}.top{height:80px;display:flex;align-items:center;justify-content:space-between;gap:20px}.search{width:405px;max-width:60%;height:38px;background:#18191b;border:1px solid #27292c;border-radius:6px;color:#fff;padding:0 13px;outline:none}.account{display:flex;align-items:center;gap:9px;background:#191a1c;border:1px solid #272a2d;border-radius:10px;padding:7px 10px 7px 8px;min-width:205px}.avatar{width:36px;height:36px;border-radius:50%;background:#0e77c5;display:grid;place-items:center;font-size:18px}.account small{display:block;color:#777d85}.account .down{margin-left:auto;color:#999}
+.breadcrumb{color:#7d838b;font-size:12px;margin:12px 0 18px}.breadcrumb strong{color:#b9bdc4}.breadcrumb .red{color:#e31d2b}.breadcrumb .link{color:#3471ff}.header{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:18px 17px 17px;margin-bottom:14px}.header h1{font-size:22px;margin:0 0 4px}.header p{margin:0;color:#777d85}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:14px}.stat{height:84px;background:var(--panel);border:1px solid var(--line);border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center}.stat b{font-size:29px}.stat span{color:#c7c9ce;font-size:12px}.split{display:grid;grid-template-columns:38.5% 61.5%;gap:13px}.card{background:var(--panel);border:1px solid var(--line);border-radius:9px}.section{padding:17px 18px}.section h2{font-size:16px;margin:0 0 3px}.sub{font-size:11px;color:#70767e;margin-bottom:14px}.switchrow{display:flex;align-items:center;gap:9px;color:#777d85;margin:7px 0 12px}.switch{width:39px;height:20px;background:#25272a;border-radius:20px;position:relative}.switch:after{content:"";position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;left:1px;top:1px}.switch.on{background:#24272b}.switch.on:after{left:20px}.label{display:block;font-size:11px;color:#c9ccd1;margin:7px 0}.code{margin-top:14px;background:#0c0e10;border:1px solid #202328;border-radius:5px;padding:13px;color:#ddd;font:12px/1.7 Consolas,Monaco,monospace;min-height:142px;overflow:auto}.kw{color:#f27676}.type{color:#f1c76e}.str{color:#b8e29e}.cyantext{color:#62d1ec}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}.appbar{height:48px;display:flex;align-items:center;gap:15px;background:#111213;border-radius:5px;padding:0 12px;margin-bottom:13px}.appbar strong{font-size:14px}.appsearch{margin-left:auto;width:390px;max-width:55%;height:34px;background:#181a1c;border:1px solid #25282b;border-radius:5px;color:#fff;padding:0 11px;outline:none}.create{width:100%;margin-bottom:13px}.appcard{background:#101112;border:1px solid #1c1f22;border-radius:6px;padding:15px 17px;margin-bottom:10px}.apphead{display:flex;justify-content:space-between;align-items:center}.appname{font-size:17px;font-weight:800}.badge{padding:4px 10px;border-radius:20px;background:#dff9e9;color:#169352;font-size:11px;font-weight:800}.badge.paused{background:#3b3021;color:#f2ad4d}.appmeta{display:grid;grid-template-columns:repeat(3,1fr);margin:16px 0 12px;text-align:center}.appmeta small{display:block;color:#747a82;margin-bottom:3px}.appmeta b{font-size:14px}.empty{padding:35px;text-align:center;color:#777d85}.tablecard{overflow:auto}.table{width:100%;border-collapse:collapse}.table th,.table td{text-align:left;padding:12px 10px;border-bottom:1px solid #25272a;white-space:nowrap}.table th{font-size:11px;color:#cfd2d7}.toolbar{display:flex;gap:9px;align-items:center;justify-content:space-between;margin-bottom:14px}.toolbar .input{max-width:360px}.modal{position:fixed;inset:0;background:#000b;display:none;place-items:center;z-index:50}.modalbox{width:450px;max-width:calc(100% - 30px);background:#191a1c;border:1px solid #2d3034;border-radius:10px;padding:21px}.modalbox h2{margin:0 0 14px}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:15px}.license-modal{width:520px;max-width:calc(100% - 30px);padding:22px 20px 0;border-radius:9px;overflow:hidden}.license-modal h2{font-size:18px;margin:0 0 18px}.lm-field{margin:0 0 18px}.lm-label{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#cfd2d7;margin:0 0 7px}.lm-label .req{color:#ff414b}.lm-control{position:relative}.lm-control .input,.lm-control .select{height:48px;background:#111214;border-color:#17191d;border-radius:8px;padding:0 13px}.lm-info{position:absolute;right:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;border:2px solid #1683ff;border-radius:50%;color:#1683ff;display:grid;place-items:center;font-size:10px;font-weight:800}.lm-grid{display:grid;grid-template-columns:140px 1fr;gap:15px}.lm-checks{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:-2px 0 18px;padding:0 5px}.lm-check{display:flex;align-items:center;justify-content:space-between;color:#d0d2d6;font-size:12px;font-weight:600}.lm-check input{appearance:none;width:16px;height:16px;border-radius:3px;background:#0e0f11;border:1px solid #0b0c0e;box-shadow:0 1px 3px #000}.lm-check input:checked{background:#176ff0;border-color:#176ff0}.lm-check input:checked:after{content:'✓';display:block;text-align:center;color:white;font-size:11px;line-height:15px}.lm-footer{margin:0 -20px;padding:16px 20px;background:#111214;border-top:1px solid #202226;display:flex;justify-content:flex-end;gap:12px}.lm-footer .btn{min-width:72px;height:38px}.lm-footer .btn.gray{background:#fff;color:#333}.lm-footer .btn.blue{min-width:110px}.toast{position:fixed;right:20px;bottom:20px;z-index:100;background:#202328;border:1px solid #373b40;color:#fff;padding:12px 15px;border-radius:7px;box-shadow:0 10px 30px #0008}.license-result{width:680px;max-width:calc(100% - 30px);padding:0;overflow:hidden}.license-result-head{padding:22px 22px 14px}.license-result-head h2{margin:0 0 6px;font-size:19px}.license-result-head p{margin:0;color:#8aa7b7;font-size:12px}.license-result-body{padding:0 22px 20px}.license-result-stats{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px}.license-result-stat{background:rgba(4,16,25,.7);border:1px solid rgba(62,149,190,.18);border-radius:9px;padding:9px 12px;font-size:12px;color:#9fb8c5}.license-result-stat b{color:#fff;margin-left:4px}.license-key-list{width:100%;min-height:180px;max-height:380px;resize:vertical;background:#03111b;color:#dff6ff;border:1px solid rgba(60,170,220,.22);border-radius:10px;padding:13px;font:12px/1.65 Consolas,Monaco,monospace;outline:none}.license-result-actions{display:flex;justify-content:flex-end;gap:9px;padding:14px 22px;background:rgba(2,12,19,.7);border-top:1px solid rgba(62,149,190,.14)}.license-result-actions .btn{min-width:105px}.license-result-actions .btn.green{min-width:145px}.footer{margin-top:15px;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:15px;text-align:center;color:#777d85;font-size:11px}
+@media(max-width:1100px){.side{width:205px}.main{margin-left:205px}.split{grid-template-columns:1fr}.appsearch{max-width:50%}}@media(max-width:760px){.mobile-menu{display:block!important;padding:7px 10px}.side{position:relative;width:100%;height:auto}.main{margin-left:0}.stats{grid-template-columns:1fr 1fr}.top{height:auto;padding:12px 0}.search{max-width:none;width:100%}.account{min-width:0}.account div:nth-child(2){display:none}.split{grid-template-columns:1fr}.appbar{height:auto;padding:10px;flex-wrap:wrap}.appsearch{width:100%;max-width:none;margin-left:0}}
+
+/* KRISHU Frozen Edition startup loader */
+#startupLoader{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:#061925;overflow:hidden;font-family:Arial,Segoe UI,sans-serif}
+#startupLoader.fade-out{opacity:0;visibility:hidden;transition:opacity .55s ease,visibility .55s ease}
+.frozen-bg{position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,#0b2334 0%,#071a28 48%,#04141f 100%)}
+.frozen-snow{position:absolute;inset:-40px;opacity:.75;background-image:radial-gradient(circle,#b9d5e6 0 1px,transparent 1.7px),radial-gradient(circle,#8db0c5 0 1px,transparent 1.7px),radial-gradient(circle,#d5e6ef 0 1px,transparent 1.5px);background-size:170px 170px,240px 240px,310px 310px;background-position:20px 10px,80px 120px,150px 40px;animation:snowDrift 12s linear infinite}
+@keyframes snowDrift{to{background-position:20px 210px,80px 360px,150px 350px}}
+.frozen-panel{position:relative;width:min(550px,80vw);min-height:395px;border:3px dashed #416c86;background:rgba(10,29,43,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:34px 30px 27px;box-shadow:0 0 40px rgba(0,0,0,.18)}
+.frozen-panel:before,.frozen-panel:after{content:"";position:absolute;width:18px;height:18px;border:1px solid #7f9bac;opacity:.45;transform:rotate(35deg);top:-13px}
+.frozen-panel:before{left:30px}.frozen-panel:after{right:28px;top:auto;bottom:-12px}
+.frozen-title{font-size:52px;line-height:1;font-weight:900;letter-spacing:1px;color:#8de7ff;text-shadow:0 0 12px rgba(82,196,235,.12);margin:0 0 17px}
+.frozen-edition{font-size:35px;font-weight:800;color:#58c7f4;margin-bottom:24px}
+.frozen-status{font-size:19px;font-weight:800;color:#5fc9f1;margin-bottom:17px}.frozen-dots{font-size:27px;line-height:18px;letter-spacing:5px;color:#65c9f0;height:26px;margin-bottom:12px}
+.frozen-progress{width:400px;max-width:90%;height:20px;background:#eee;border:1px solid #c6c6c6;overflow:hidden;box-shadow:inset 0 0 2px #888}
+.frozen-progress-bar{height:100%;width:0;background:#00bd2b;transition:width .12s linear}
+.frozen-percent{font-size:17px;font-weight:800;color:#5fc9f1;margin-top:11px}.frozen-version{font-size:14px;color:#3e9ed0;margin-top:12px}
+@media(max-width:600px){.frozen-panel{min-height:330px;padding:25px 15px}.frozen-title{font-size:40px}.frozen-edition{font-size:26px}.frozen-status{font-size:16px}.frozen-progress{height:18px}}
+
+
+/* Arctic starfield theme - applied across the entire website */
+:root{--bg:#061925;--side:rgba(5,20,31,.88);--panel:rgba(8,27,42,.78);--panel2:rgba(3,18,29,.72);--line:rgba(61,125,157,.30);--text:#edf9ff;--muted:#7596a8;--blue:#1765f5;--purple:#7b2be2;--cyan:#079fc8;--green:#079b58;--orange:#df4d08;--red:#df1721}
+html,body{background:#061925!important;color:var(--text)}
+body{position:relative;min-height:100vh;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;z-index:-2;background:radial-gradient(circle at 50% 42%,#0b2639 0%,#071c2b 42%,#041520 100%)}
+body:after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.78;background-image:radial-gradient(circle,#b9d5e6 0 1px,transparent 1.7px),radial-gradient(circle,#86aabd 0 1px,transparent 1.7px),radial-gradient(circle,#d5e6ef 0 1px,transparent 1.5px);background-size:170px 170px,240px 240px,310px 310px;background-position:20px 10px,80px 120px,150px 40px;animation:siteSnow 18s linear infinite}
+@keyframes siteSnow{to{background-position:20px 190px,80px 350px,150px 330px}}
+.login{background:transparent!important;position:relative}
+.loginbox{background:rgba(8,27,42,.90);border-color:rgba(76,139,168,.34);box-shadow:0 20px 80px rgba(0,0,0,.45),0 0 40px rgba(38,133,180,.08)}
+.side{background:rgba(5,20,31,.86);border-right-color:rgba(67,126,155,.22);backdrop-filter:blur(8px)}
+.brand{color:#e8f8ff;text-shadow:0 0 16px rgba(96,211,255,.15)}
+.license-select,.top .search,.account,.header,.stat,.card,.footer,.appbar,.appcard,.code,.modalbox{background:rgba(7,25,39,.78)!important;border-color:rgba(67,130,160,.28)!important;backdrop-filter:blur(7px)}
+.top{border-bottom:1px solid rgba(67,130,160,.16)}
+.search,.appsearch,.input,.select{background:rgba(3,17,28,.78)!important;border-color:rgba(67,130,160,.36)!important;color:#effaff!important}
+.search:focus,.appsearch:focus,.input:focus,.select:focus{border-color:#238bd1!important;box-shadow:0 0 0 2px rgba(35,139,209,.10)}
+.nav{color:#d8edf6}.nav:hover{background:rgba(31,94,124,.20)}
+.nav.active{background:#1765f5;box-shadow:0 0 18px rgba(23,101,245,.32)}
+.header,.stat,.card,.footer{box-shadow:0 10px 35px rgba(0,0,0,.16)}
+.stat b,.appname,.header h1,.section h2{color:#f1fbff}
+.breadcrumb{color:#7798aa}.breadcrumb strong{color:#c7e0ea}.breadcrumb .link{color:#43b7ff}
+.code{background:rgba(1,12,20,.82)!important;color:#d9f3ff}
+.appcard{background:rgba(2,16,27,.68)!important}
+.appbar{background:rgba(2,16,27,.72)!important}
+.create{box-shadow:0 0 18px rgba(23,101,245,.18)}
+.badge{box-shadow:0 0 12px rgba(25,190,116,.08)}
+.toolbar .input{background:rgba(3,17,28,.78)!important}
+.modal{background:rgba(0,8,14,.76)}
+.footer{color:#6f96aa}
+
+
+/* FINAL ARCTIC UI — inspired by the supplied reference */
+:root{
+ --bg:#031522;--side:#041521;--panel:rgba(4,27,43,.82);--panel2:rgba(2,20,33,.76);
+ --line:rgba(52,151,196,.34);--line2:rgba(67,176,218,.20);--text:#effaff;--muted:#7196aa;
+ --blue:#075bea;--blue2:#1685ff;--cyan:#08b9ee;--green:#08a969;--purple:#7b20e9;--orange:#f05a08;--red:#ed1620;
+}
+html,body{background:#031522!important;color:var(--text)}
+body{font-family:Inter,Segoe UI,Tahoma,Arial,sans-serif;position:relative;min-height:100vh}
+body:before{content:"";position:fixed;inset:0;z-index:-4;background:
+ radial-gradient(circle at 48% 20%,rgba(16,67,93,.38),transparent 34%),
+ radial-gradient(circle at 75% 75%,rgba(8,57,83,.22),transparent 32%),
+ linear-gradient(180deg,#061b2a 0%,#031522 52%,#02111c 100%)}
+body:after{content:"";position:fixed;inset:0;z-index:-3;pointer-events:none;opacity:.72;background-image:
+ radial-gradient(circle,#b7d9e8 0 1px,transparent 1.6px),
+ radial-gradient(circle,#6f9bb0 0 1px,transparent 1.7px),
+ radial-gradient(circle,#d6e9f1 0 1px,transparent 1.5px);
+ background-size:170px 170px,240px 240px,310px 310px;background-position:22px 14px,75px 100px,150px 35px;animation:siteSnow 22s linear infinite}
+@keyframes siteSnow{to{background-position:22px 220px,75px 360px,150px 345px}}
+.layout{min-height:100vh;background:transparent}
+.side{width:230px;background:rgba(3,18,29,.88);border-right:1px solid rgba(61,144,181,.20);backdrop-filter:blur(10px);box-shadow:8px 0 30px rgba(0,0,0,.16);padding:17px 13px}
+.brand{font-size:23px;margin:9px 12px 29px;color:#f0fbff;text-shadow:0 0 18px rgba(58,189,241,.22)}
+.license-select{background:rgba(3,18,30,.74)!important;border:1px solid rgba(55,135,169,.24)!important;border-radius:11px;padding:12px 11px;margin-bottom:16px;box-shadow:inset 0 0 22px rgba(10,111,155,.035)}
+.license-select small{color:#7fa1b2}.license-select b{color:#edfaff}
+.nav{color:#cce4ed;padding:11px 10px;margin:3px 0;border:1px solid transparent;transition:.16s ease}
+.nav:hover{background:rgba(14,98,137,.16);border-color:rgba(46,139,180,.12);transform:translateX(1px)}
+.nav.active{background:linear-gradient(90deg,#145df0,#0c6cf5);box-shadow:0 0 20px rgba(20,103,245,.30),inset 0 0 0 1px rgba(114,196,255,.10);border-color:rgba(102,193,255,.12)}
+.ico{color:#b9e9fb}.nav.active .ico{color:#fff}
+.main{margin-left:230px;padding:0 14px 15px;min-height:100vh}
+.top{height:78px;border-bottom:1px solid rgba(59,137,172,.18);margin:0 -14px;padding:0 14px;display:flex}
+.search{width:405px;height:39px;background:rgba(3,20,32,.72)!important;border:1px solid rgba(45,139,180,.30)!important;border-radius:7px;color:#effaff;padding:0 13px;box-shadow:inset 0 0 20px rgba(11,109,150,.03)}
+.account{min-width:205px;background:rgba(4,24,38,.82)!important;border:1px solid rgba(54,141,181,.26)!important;border-radius:11px;padding:7px 10px 7px 8px;box-shadow:0 8px 28px rgba(0,0,0,.16)}
+.avatar{background:linear-gradient(145deg,#0d77cf,#0871d0);box-shadow:0 0 18px rgba(0,146,255,.24);border:1px solid rgba(131,218,255,.25)}
+.breadcrumb{color:#7599ab;margin:18px 0 17px}.breadcrumb strong{color:#bfdce8}.breadcrumb .link{color:#28a9ff}.breadcrumb .red{color:#ff2935}
+.header,.stat,.card,.footer{background:rgba(4,27,43,.78)!important;border:1px solid rgba(53,145,185,.28)!important;box-shadow:0 12px 36px rgba(0,0,0,.16),inset 0 0 30px rgba(21,111,150,.025);backdrop-filter:blur(8px)}
+.header{padding:18px 17px;margin-bottom:14px}.header h1{font-size:22px;color:#f2fbff}.header p{color:#6f96aa}
+.stats{gap:13px;margin-bottom:14px}.stat{height:84px;position:relative;overflow:hidden}.stat:before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,rgba(10,107,151,.08),transparent 42%);pointer-events:none}.stat b{font-size:29px;color:#fff}.stat span{color:#9fc3d2}
+.section{padding:17px 18px}.section h2{color:#effaff;font-size:16px}.sub,.switchrow{color:#6f96aa}.label{color:#c5e0ea}
+.switch{background:#1b2932;box-shadow:inset 0 0 10px rgba(0,0,0,.3)}.switch.on{background:#087bd0}.switch.on:after{left:20px}
+.input,.select,.search,.appsearch{background:rgba(2,17,28,.78)!important;border:1px solid rgba(55,146,184,.35)!important;color:#effaff!important}.input:focus,.select:focus,.search:focus,.appsearch:focus{border-color:#1ca5e8!important;box-shadow:0 0 0 2px rgba(28,165,232,.09),0 0 20px rgba(28,165,232,.06)}
+.code{background:rgba(1,12,20,.84)!important;border-color:rgba(47,116,145,.30)!important;color:#dff5ff;border-radius:6px;box-shadow:inset 0 0 24px rgba(0,93,135,.05)}
+.appbar{background:rgba(2,17,28,.68)!important;border:1px solid rgba(46,128,161,.12);height:48px}.appbar strong{color:#dff6ff}.appsearch{height:36px}
+.create{background:linear-gradient(90deg,#0759e8,#1269f5)!important;box-shadow:0 0 22px rgba(12,98,244,.20)}
+.appcard{background:rgba(2,16,27,.66)!important;border:1px solid rgba(46,116,146,.20)!important;border-radius:8px}.appname{color:#effaff}.appmeta small{color:#7197aa}.appmeta b{color:#e7f7fd}
+.badge{background:#dff9e9;color:#0c9658}.badge.paused{background:#3d2e1f;color:#f5ad48}
+.btn{border-radius:5px}.btn.blue{background:#075bea}.btn.green{background:#079f64}.btn.purple{background:#7a1fe5}.btn.cyan{background:#078fb8}.btn.orange{background:#ec5608}.btn.red{background:#e91820}.btn.gray{background:#2d343a}
+.footer{color:#6c95a8;padding:15px}
+.modalbox{background:rgba(4,27,43,.96)!important;border-color:rgba(61,151,193,.34)!important;box-shadow:0 24px 90px rgba(0,0,0,.52)}
+.toast{background:rgba(4,27,43,.96);border-color:rgba(62,145,181,.36)}
+@media(max-width:1100px){.side{width:205px}.main{margin-left:205px}}
+@media(max-width:760px){.side{width:100%;position:relative}.main{margin-left:0}.top{margin:0 -14px;padding:12px 14px;height:auto}}
+
+
+/* === Arctic Motion Effects === */
+html{scroll-behavior:smooth}
+body{isolation:isolate}
+body:after{opacity:.58!important;animation:siteSnow 28s linear infinite, starPulse 5s ease-in-out infinite alternate!important}
+@keyframes starPulse{from{opacity:.42}to{opacity:.72}}
+.arctic-glow{position:fixed;inset:0;pointer-events:none;z-index:-1;overflow:hidden}
+.arctic-glow .orb{position:absolute;border-radius:50%;filter:blur(55px);opacity:.18;mix-blend-mode:screen}
+.arctic-glow .o1{width:360px;height:360px;left:-120px;top:12%;background:#087bd1;animation:orbFloat1 13s ease-in-out infinite}
+.arctic-glow .o2{width:300px;height:300px;right:-100px;top:45%;background:#0aa6df;animation:orbFloat2 16s ease-in-out infinite}
+.arctic-glow .o3{width:260px;height:260px;left:35%;bottom:-130px;background:#175bea;animation:orbFloat3 18s ease-in-out infinite}
+@keyframes orbFloat1{50%{transform:translate(90px,45px) scale(1.15);opacity:.25}100%{transform:translate(0,0)}}
+@keyframes orbFloat2{50%{transform:translate(-80px,-35px) scale(1.1);opacity:.24}100%{transform:translate(0,0)}}
+@keyframes orbFloat3{50%{transform:translate(35px,-70px) scale(1.12);opacity:.2}100%{transform:translate(0,0)}}
+.arctic-lines{position:absolute;inset:0;opacity:.12;background:
+linear-gradient(115deg,transparent 0 25%,rgba(91,211,255,.55) 25.1%,transparent 25.25% 100%),
+linear-gradient(295deg,transparent 0 68%,rgba(91,211,255,.35) 68.1%,transparent 68.25% 100%);
+background-size:900px 900px,1100px 1100px;animation:linesMove 24s linear infinite}
+@keyframes linesMove{to{background-position:900px -900px,-1100px 1100px}}
+.snowflake{position:absolute;top:-20px;color:#c9ecfa;text-shadow:0 0 9px rgba(120,220,255,.7);opacity:.45;animation:snowFall linear infinite;user-select:none}
+@keyframes snowFall{0%{transform:translate3d(0,-30px,0) rotate(0deg);opacity:0}10%{opacity:.55}50%{transform:translate3d(35px,50vh,0) rotate(180deg)}90%{opacity:.25}100%{transform:translate3d(-25px,110vh,0) rotate(360deg);opacity:0}}
+.side,.header,.stat,.card,.footer,.account,.license-select,.appbar,.appcard{transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.card:hover,.stat:hover{border-color:rgba(61,183,231,.48)!important;box-shadow:0 14px 42px rgba(0,0,0,.2),0 0 24px rgba(12,148,207,.07)!important}
+.stat:hover{transform:translateY(-2px)}
+.appcard:hover{transform:translateY(-2px);border-color:rgba(61,183,231,.4)!important;box-shadow:0 12px 30px rgba(0,0,0,.22),0 0 22px rgba(8,166,221,.06)}
+.nav.active:after{content:"";position:absolute;right:7px;width:4px;height:22px;border-radius:4px;background:#8feaff;box-shadow:0 0 12px #47cfff}
+.nav{position:relative}
+.btn{transition:transform .18s ease,filter .18s ease,box-shadow .18s ease!important}
+.btn:hover{box-shadow:0 0 16px rgba(44,170,255,.18)}
+.create{position:relative;overflow:hidden}
+.create:before{content:"";position:absolute;top:0;left:-120%;width:70%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);transform:skewX(-20deg);animation:buttonShine 4s ease-in-out infinite}
+@keyframes buttonShine{0%,55%{left:-120%}75%,100%{left:150%}}
+
+
+/* Icon system */
+.ico,.btn-icon,.avatar-icon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}.ico{width:18px;height:18px}.ico svg{width:17px;height:17px;stroke:currentColor}.nav{gap:11px}.btn-icon{width:36px;height:36px;padding:0;border:1px solid rgba(67,145,185,.34)!important;background:rgba(3,20,32,.72);border-radius:8px;color:#bdefff}.btn-icon:hover{background:rgba(14,100,145,.22);color:#fff;box-shadow:0 0 16px rgba(44,170,255,.16)}.avatar-icon svg{width:20px;height:20px;stroke:#eafaff}.toolbar-icons{display:flex;gap:8px}.toolbar{align-items:center}.iconbtn-label{display:inline-flex;align-items:center;gap:7px}.iconbtn-label svg{width:15px;height:15px;stroke:currentColor}
+
+/* Profile room */
+.profile-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:14px}.profile-card{min-height:430px}.profile-hero{display:flex;align-items:center;gap:14px;padding:4px 0 18px;border-bottom:1px solid rgba(55,146,184,.16);margin-bottom:15px}.profile-hero h2{margin:0 0 2px;font-size:20px}.profile-hero p{margin:0;color:#7097aa}.profile-avatar{width:68px;height:68px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#1ca5ee,#0757b8);border:1px solid rgba(126,222,255,.35);box-shadow:0 0 28px rgba(0,145,255,.22)}.profile-avatar svg{width:31px;height:31px;stroke:#effcff}.profile-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}.avatar-upload{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.avatar-file{display:none}.avatar-upload-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 11px;border-radius:7px;border:1px solid rgba(55,146,184,.35);background:rgba(2,17,28,.72);color:#dff8ff;cursor:pointer}.avatar-upload-btn:hover{border-color:#22aef0;box-shadow:0 0 15px rgba(22,166,235,.16)}.avatar-hint{font-size:11px;color:#6f96aa}.profile-textarea{height:92px;padding:11px;resize:vertical;line-height:1.5}.avatar-picks{display:flex;gap:8px;flex-wrap:wrap}.avatar-pick{width:42px;height:42px;border-radius:9px;border:1px solid rgba(55,146,184,.3);background:rgba(2,17,28,.72);color:#9fd8ea;display:grid;place-items:center;transition:.16s}.avatar-pick svg{width:20px;height:20px}.avatar-pick:hover,.avatar-pick.selected{border-color:#22aef0;background:rgba(10,111,160,.22);color:#fff;box-shadow:0 0 15px rgba(22,166,235,.16)}.profile-info{display:grid;gap:10px}.profile-info>div{background:rgba(2,17,28,.48);border:1px solid rgba(55,146,184,.16);border-radius:8px;padding:11px 12px}.profile-info small{display:block;color:#6f96aa;margin-bottom:3px}.profile-info b{color:#e9f8ff}.profile-divider{height:1px;background:rgba(55,146,184,.16);margin:20px 0}.profile-note{margin-top:20px;padding:12px;border-radius:8px;background:rgba(8,95,135,.12);border:1px solid rgba(55,146,184,.2);color:#8bb5c7}.account{cursor:pointer}.account:hover{border-color:rgba(55,180,230,.45)!important;box-shadow:0 0 20px rgba(22,150,215,.08)}
+@media(max-width:900px){.profile-grid{grid-template-columns:1fr}}
+
+.side-status{margin:22px 5px 0;padding:11px 12px;display:flex;align-items:center;gap:9px;border:1px solid rgba(66,157,192,.14);border-radius:10px;background:rgba(5,31,46,.48);color:#dff8ff}.side-status b{display:block;font-size:11px}.side-status small{display:block;color:#6f9aac;font-size:9px;margin-top:1px}.status-dot{width:8px;height:8px;border-radius:50%;background:#32e19a;box-shadow:0 0 12px #32e19a;animation:statusPulse 2s ease-in-out infinite}@keyframes statusPulse{50%{box-shadow:0 0 20px #32e19a;opacity:.65}}
+.page-skeleton{display:grid;gap:14px}.sk-line{height:14px;border-radius:99px;background:linear-gradient(90deg,rgba(35,91,117,.18),rgba(76,184,223,.22),rgba(35,91,117,.18));background-size:200% 100%;animation:sk 1.4s linear infinite}.sk-box,.sk-large,.sk-grid i{border:1px solid rgba(67,145,178,.18);background:rgba(4,27,43,.55);border-radius:12px}.sk-box{height:130px}.sk-large{height:310px}.sk-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.sk-grid i{height:92px}@keyframes sk{to{background-position:-200% 0}}.error-state{text-align:center;padding:45px}.error-state h2{margin-bottom:6px}.error-state p{color:#7899aa;margin-bottom:18px}
+/* === POLISHED ARCTIC UI v3 === */
+:root{
+ --glass:rgba(4,25,40,.70);--glass-strong:rgba(4,29,46,.88);--stroke:rgba(92,190,232,.20);
+ --stroke-strong:rgba(86,205,255,.38);--glow:rgba(19,160,224,.18);--cyan:#38c9ff;--ice:#dff8ff;
+}
+*{scrollbar-width:thin;scrollbar-color:rgba(65,151,188,.45) transparent}
+*::-webkit-scrollbar{width:8px;height:8px}*::-webkit-scrollbar-track{background:transparent}*::-webkit-scrollbar-thumb{background:rgba(65,151,188,.35);border-radius:99px}
+body{letter-spacing:.01em}
+body:before{background:radial-gradient(circle at 18% 8%,rgba(0,151,221,.13),transparent 25%),radial-gradient(circle at 82% 28%,rgba(0,111,181,.11),transparent 27%),linear-gradient(180deg,#061c2c 0%,#031522 54%,#020f19 100%)}
+body:after{opacity:.48!important;background-size:190px 190px,280px 280px,360px 360px;animation:siteSnow 34s linear infinite,starPulse 7s ease-in-out infinite alternate!important}
+.side{width:242px;background:linear-gradient(180deg,rgba(3,19,31,.94),rgba(3,16,26,.88));border-right:1px solid rgba(81,165,201,.20);box-shadow:12px 0 50px rgba(0,0,0,.18);padding:18px 14px;}
+.brand{font-size:25px;margin:7px 12px 28px;letter-spacing:-1.1px;text-shadow:0 0 22px rgba(80,209,255,.24)}
+.license-select{position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(7,42,61,.74),rgba(3,23,37,.68))!important;border-color:rgba(72,166,206,.28)!important;box-shadow:inset 0 1px rgba(255,255,255,.04),0 12px 28px rgba(0,0,0,.12)}
+.license-select:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(#38c9ff,#0872ef);box-shadow:0 0 14px #28bfff}
+.nav{min-height:44px;border-radius:10px;font-size:13px}.nav.active{background:linear-gradient(100deg,#0d5eea,#0875f7);box-shadow:0 0 24px rgba(10,105,245,.30),inset 0 1px rgba(255,255,255,.12)}
+.main{margin-left:242px;padding:0 18px 22px}.top{height:76px;margin:0 -18px;padding:0 18px;background:linear-gradient(180deg,rgba(2,14,24,.55),rgba(2,14,24,.22));backdrop-filter:blur(12px);position:sticky;top:0;z-index:9}
+.search{height:40px;border-radius:9px!important;box-shadow:inset 0 0 22px rgba(20,122,165,.04),0 5px 22px rgba(0,0,0,.08)}
+.account{min-width:225px;cursor:pointer;background:rgba(6,30,47,.82)!important;box-shadow:0 10px 30px rgba(0,0,0,.16),inset 0 1px rgba(255,255,255,.04)}
+.account .avatar{width:40px;height:40px}.account b{font-size:12px}.account small{color:#79a8bb}
+.breadcrumb{padding:2px 2px;color:#6e9aac}.header{position:relative;overflow:hidden;border-radius:12px;padding:22px 20px!important}.header:after{content:"";position:absolute;width:240px;height:240px;right:-120px;top:-140px;border-radius:50%;background:rgba(20,177,235,.12);filter:blur(25px);pointer-events:none}.header h1{font-size:24px;letter-spacing:-.3px}.header p{font-size:12px}
+.stats{gap:14px}.stat{height:94px;border-radius:12px!important;align-items:flex-start;padding-left:70px;position:relative}.stat:after{content:"";position:absolute;left:20px;top:50%;width:34px;height:34px;transform:translateY(-50%);border-radius:11px;background:rgba(8,129,189,.15);border:1px solid rgba(72,186,227,.20);box-shadow:0 0 20px rgba(24,167,222,.08)}.stat b{font-size:30px;line-height:1}.stat span{margin-top:4px}.stat:hover{transform:translateY(-3px) scale(1.005)}
+.card,.header,.stat,.footer,.appbar,.appcard{box-shadow:0 14px 42px rgba(0,0,0,.17),inset 0 1px rgba(255,255,255,.025)!important}
+.card{border-radius:12px!important}.section{padding:19px 19px}.section h2{font-size:17px}.split{grid-template-columns:minmax(360px,.86fr) minmax(500px,1.14fr);gap:14px}
+.input,.select,.search,.appsearch{height:42px!important;border-radius:9px!important;background:rgba(1,14,24,.68)!important}.code{border-radius:10px;min-height:154px;padding:15px;box-shadow:inset 0 0 35px rgba(0,99,141,.07)}
+.actions{gap:8px}.btn{border-radius:8px!important;padding:9px 13px;box-shadow:0 5px 16px rgba(0,0,0,.10)}.btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.create{height:44px!important;border-radius:9px!important;font-size:13px}.create:after{content:"";position:absolute;inset:1px;border-radius:8px;border:1px solid rgba(130,225,255,.16);pointer-events:none}
+.appbar{border-radius:10px!important}.appcard{border-radius:10px!important;padding:17px}.apphead{gap:12px}.appmeta{padding:13px 0;border-top:1px solid rgba(72,154,186,.12);border-bottom:1px solid rgba(72,154,186,.12)}
+.badge{box-shadow:0 0 14px rgba(30,205,137,.10);border:1px solid rgba(30,160,100,.16)}
+.toolbar-icons{gap:7px}.btn-icon{border-radius:9px!important;background:rgba(3,25,39,.72)}
+.tablecard{border:1px solid rgba(62,145,178,.14);border-radius:10px}.table th{background:rgba(4,29,44,.72);position:sticky;top:0}.table td{border-bottom-color:rgba(62,145,178,.12)}.table tr:hover td{background:rgba(20,112,151,.07)}
+.modal{backdrop-filter:blur(7px);animation:modalBg .2s ease}.modalbox{border-radius:14px!important;box-shadow:0 28px 100px rgba(0,0,0,.60),0 0 40px rgba(20,151,208,.07)!important;animation:modalIn .22s cubic-bezier(.2,.8,.2,1)}
+@keyframes modalIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}@keyframes modalBg{from{opacity:0}to{opacity:1}}
+.toast{border-radius:10px;padding:13px 16px;background:rgba(4,31,48,.96);box-shadow:0 15px 45px rgba(0,0,0,.32),0 0 22px rgba(23,166,221,.10);animation:toastIn .25s ease}.toast.success{border-color:rgba(48,209,151,.38)}.toast.error{border-color:rgba(255,65,76,.42)}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.footer{border-radius:11px!important}.footer a{color:#79bfd7}
+/* refined profile */
+.profile-grid{gap:16px}.profile-card{min-height:470px}.profile-hero{padding:3px 0 20px}.profile-avatar{width:76px;height:76px}.profile-avatar:after{content:"";position:absolute}.profile-avatar{position:relative}.profile-hero h2{font-size:21px}.profile-info>div{transition:.18s}.profile-info>div:hover{border-color:rgba(61,180,224,.30);transform:translateX(2px)}
+.avatar-upload-btn{border-radius:9px}.avatar-pick{border-radius:10px;width:44px;height:44px}
+/* login polish */
+.login{background:radial-gradient(circle at 50% 35%,rgba(11,84,116,.18),transparent 32%)!important}.loginbox{width:460px;border-radius:16px!important;padding:34px;box-shadow:0 30px 100px rgba(0,0,0,.58),0 0 45px rgba(15,159,220,.10)}.loginlogo{font-size:32px;letter-spacing:-1px;text-shadow:0 0 20px rgba(62,205,255,.18)}.loginbox>p{font-size:12px}.tabs{border:1px solid rgba(65,147,184,.14);border-radius:9px}.tab.active{background:linear-gradient(100deg,rgba(12,100,226,.25),rgba(13,72,136,.18));box-shadow:inset 0 1px rgba(255,255,255,.05)}
+/* loader */
+#startupLoader{background:#031522}.frozen-panel{border-color:rgba(88,175,211,.46)!important;box-shadow:0 0 50px rgba(25,150,200,.10),inset 0 0 50px rgba(16,89,123,.08)}
+@media(max-width:1150px){.side{width:218px}.main{margin-left:218px}.split{grid-template-columns:1fr}.stat{padding-left:62px}}
+@media(max-width:760px){.side{width:100%;position:relative}.main{margin-left:0;padding:0 10px 18px}.top{margin:0 -10px;padding:10px;height:auto;gap:10px;position:relative}.top .search{max-width:none}.account{min-width:auto}.stats{grid-template-columns:1fr 1fr}.stat{padding-left:58px}.stat:after{left:14px}.split{grid-template-columns:1fr}.loginbox{padding:24px}.profile-grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition:none!important}}
+
+
+/* Arctic Premium UI layer */
+:root{--bg:#041522;--side:#06131e;--panel:rgba(7,28,43,.78);--panel2:rgba(4,20,31,.88);--line:rgba(55,170,225,.22);--line2:rgba(92,204,255,.38);--text:#f4fbff;--muted:#86a6b8;--blue:#087cf5;--blue2:#25c7ff;--cyan:#25d7ff;--green:#13c58b;--orange:#ff9b32;--red:#ff4d67;--purple:#9b6cff}
+html,body{background:#03131f;min-height:100%;overflow-x:hidden}body:before{content:"";position:fixed;inset:0;z-index:-5;background:radial-gradient(ellipse at 50% 0%,rgba(18,116,163,.22),transparent 42%),radial-gradient(ellipse at 10% 80%,rgba(0,119,255,.12),transparent 35%),linear-gradient(180deg,#061c2b 0%,#03131f 60%,#020e18 100%)}
+.layout{position:relative;z-index:1}.arctic-glow{position:fixed!important;inset:0;pointer-events:none;z-index:0;overflow:hidden}.arctic-glow:before{content:"";position:absolute;inset:-20%;background:radial-gradient(circle at 20% 30%,rgba(23,160,220,.11),transparent 28%),radial-gradient(circle at 80% 70%,rgba(22,111,255,.1),transparent 30%);animation:aurora 16s ease-in-out infinite alternate}.orb{filter:blur(80px)!important;opacity:.18!important}.arctic-lines{opacity:.35!important}
+.side{width:230px;background:linear-gradient(180deg,rgba(4,21,32,.96),rgba(3,17,27,.94));border-right:1px solid rgba(57,181,235,.16);box-shadow:12px 0 50px rgba(0,0,0,.18);backdrop-filter:blur(18px)}.brand{font-size:24px;color:#fff;text-shadow:0 0 18px rgba(72,207,255,.55);letter-spacing:-1px}.license-select,.account,.top,.header,.card,.stat,.footer{background:linear-gradient(145deg,rgba(8,34,51,.78),rgba(3,20,31,.76));border-color:var(--line);box-shadow:0 14px 45px rgba(0,0,0,.12),inset 0 1px rgba(255,255,255,.025)}.license-select:hover,.account:hover,.card:hover{border-color:var(--line2)}
+.nav{position:relative;color:#b8d0dc;margin:4px 0;padding:11px 12px;transition:transform .18s,background .18s,box-shadow .18s}.nav:hover{background:rgba(26,129,181,.12);transform:translateX(2px)}.nav.active{background:linear-gradient(100deg,#0869ee,#0b8cff);box-shadow:0 7px 25px rgba(0,121,255,.28),inset 0 1px rgba(255,255,255,.2)}.nav.active:after{content:"";position:absolute;right:-13px;width:3px;height:24px;border-radius:5px;background:#3cd9ff;box-shadow:0 0 14px #28caff}.side-status{margin:20px 4px;padding:11px;border:1px solid var(--line);border-radius:12px;background:rgba(6,35,52,.55);display:flex;gap:9px;align-items:center;color:#b9d3df}.status-dot{width:8px;height:8px;border-radius:50%;background:#16d58d;box-shadow:0 0 12px #16d58d;animation:pulse 1.8s infinite}.side-status small{display:block;color:#6e93a5;font-size:10px}
+.mobile-menu{display:none}.main{position:relative;z-index:2;padding:0 18px 24px}.top{position:sticky;top:10px;z-index:20;margin:10px 0 8px;padding:8px 10px;border-radius:14px;min-height:64px;backdrop-filter:blur(18px)}.search{background:rgba(2,15,24,.75);border-color:rgba(60,170,220,.2);height:40px;border-radius:10px}.search:focus{border-color:#18bfff;box-shadow:0 0 0 3px rgba(24,191,255,.08),0 0 22px rgba(24,191,255,.08)}.account{cursor:pointer;min-width:225px;border-radius:12px}.avatar{background:linear-gradient(145deg,#087dd7,#0a2944);box-shadow:0 0 18px rgba(0,143,255,.2);overflow:hidden}.avatar img,.profile-avatar img{width:100%;height:100%;object-fit:cover}
+.breadcrumb{color:#7097aa}.header{border-radius:14px;padding:21px 20px;margin-bottom:16px;position:relative;overflow:hidden}.header:after{content:"";position:absolute;right:-90px;top:-120px;width:260px;height:260px;background:radial-gradient(circle,rgba(29,195,255,.15),transparent 68%);pointer-events:none}.header h1{font-size:24px;letter-spacing:-.4px}.stats{gap:15px}.stat{height:92px;border-radius:14px;position:relative;overflow:hidden;transition:.22s}.stat:hover{transform:translateY(-3px);border-color:var(--line2);box-shadow:0 14px 34px rgba(0,130,220,.14)}.stat:before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,#28caff,transparent);opacity:.55}.stat b{font-size:31px;text-shadow:0 0 18px rgba(76,205,255,.22)}.stat span{color:#8cb4c4}.split{gap:15px}.section{border-radius:14px;padding:19px}.input,.select{background:rgba(2,14,22,.72);border-color:rgba(67,175,220,.2);border-radius:9px}.input:focus,.select:focus{border-color:#19bfff;box-shadow:0 0 0 3px rgba(25,191,255,.07)}.code{background:#020c13;border-color:rgba(54,170,220,.2);border-radius:10px;box-shadow:inset 0 0 35px rgba(0,122,186,.08)}.appbar{background:rgba(3,17,27,.7);border:1px solid rgba(60,170,220,.12);border-radius:10px}.appcard{background:linear-gradient(145deg,rgba(5,30,45,.7),rgba(2,18,28,.72));border-color:rgba(58,171,220,.15);border-radius:12px;transition:.2s}.appcard:hover{transform:translateY(-2px);border-color:rgba(70,201,255,.35);box-shadow:0 12px 35px rgba(0,80,130,.12)}.create{background:linear-gradient(100deg,#086af0,#08a6ff);box-shadow:0 8px 24px rgba(0,117,255,.22)}.btn{border-radius:8px;box-shadow:0 5px 15px rgba(0,0,0,.12);transition:transform .18s,filter .18s,box-shadow .18s}.btn:hover{filter:brightness(1.12);transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.18)}.btn.blue{background:linear-gradient(100deg,#0768ee,#079df5)}.btn.green{background:linear-gradient(100deg,#079a68,#0ac58d)}.btn.purple{background:linear-gradient(100deg,#7541dd,#9b6cff)}.btn.cyan{background:linear-gradient(100deg,#078eb5,#14c9ed)}.btn.orange{background:linear-gradient(100deg,#e76b08,#ff9d2e)}.btn.red{background:linear-gradient(100deg,#d91f3d,#ff4d62)}
+.tablecard{border:1px solid rgba(60,170,220,.12);border-radius:11px}.table th{background:rgba(7,37,53,.55);color:#9fc0cf}.table td{border-bottom-color:rgba(62,149,190,.12)}.table tr:hover td{background:rgba(22,140,190,.055)}.badge{box-shadow:0 0 16px rgba(26,213,141,.1)}.modal{background:rgba(1,10,16,.78);backdrop-filter:blur(8px)}.modalbox{background:linear-gradient(145deg,#092131,#051722);border-color:rgba(64,192,242,.25);box-shadow:0 30px 100px rgba(0,0,0,.55),0 0 40px rgba(0,126,190,.08);border-radius:15px}.license-modal{background:linear-gradient(145deg,#0a2535,#051720)}.toast{background:rgba(5,28,41,.94);border-color:rgba(74,190,240,.25);box-shadow:0 15px 45px rgba(0,0,0,.35),0 0 20px rgba(0,145,220,.08);backdrop-filter:blur(14px)}
+.profile-grid{gap:15px}.profile-card{position:relative;overflow:hidden}.profile-card:before{content:"";position:absolute;inset:0 0 auto;height:130px;background:linear-gradient(135deg,rgba(12,143,205,.18),transparent);pointer-events:none}.profile-hero{position:relative;z-index:1}.profile-avatar{box-shadow:0 0 0 4px rgba(22,173,232,.08),0 0 35px rgba(0,150,230,.18);border-color:rgba(77,203,247,.35)}
+#startupLoader{background:#02131f!important}.frozen-bg{background:radial-gradient(circle at 50% 40%,#0a2940 0%,#061c2b 48%,#02121d 100%)!important}.frozen-panel{background:rgba(6,25,39,.72)!important;border-color:rgba(83,180,229,.45)!important;box-shadow:0 25px 80px rgba(0,0,0,.4),0 0 45px rgba(18,145,210,.08)!important;backdrop-filter:blur(8px)}
+@keyframes aurora{from{transform:translate3d(-2%,0,0) scale(1)}to{transform:translate3d(2%,-1%,0) scale(1.05)}}@keyframes pulse{50%{opacity:.45;box-shadow:0 0 5px #16d58d}}
+
+/* Admin background controls */
+:root{--site-bg-color:#061925;--site-bg-image:none;--site-bg-overlay:.18}
+body:before{background:var(--site-bg-image),radial-gradient(circle at 18% 8%,rgba(0,151,221,.13),transparent 25%),radial-gradient(circle at 82% 28%,rgba(0,111,181,.11),transparent 27%),linear-gradient(180deg,#061c2c 0%,#031522 54%,#020f19 100%)!important;background-size:cover,auto,auto,auto;background-position:center,center,center,center;background-attachment:fixed!important}
+body:after{opacity:calc(.48 * (1 - var(--site-bg-overlay)))!important}
+body[data-bg-mode="midnight"]:before{background:var(--site-bg-image),linear-gradient(135deg,#02070d,#07111d 52%,#010409)!important}
+body[data-bg-mode="ocean"]:before{background:var(--site-bg-image),radial-gradient(circle at 20% 20%,rgba(11,111,155,.20),transparent 32%),linear-gradient(135deg,#021722,#06334a 52%,#01101b)!important}
+body[data-bg-mode="solid"]:before{background:var(--site-bg-color)!important}
+body[data-bg-mode="image"]:before{background:var(--site-bg-image),linear-gradient(rgba(1,10,16,var(--site-bg-overlay)),rgba(1,10,16,var(--site-bg-overlay)))!important;background-size:cover;background-position:center;background-attachment:fixed!important}
+.settings-card{max-width:1000px}.settings-divider{height:1px;background:rgba(55,146,184,.16);margin:22px 0}.bg-presets{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:12px 0 18px}.bg-preset{border:1px solid rgba(55,146,184,.22);background:rgba(2,17,28,.58);color:#dff8ff;border-radius:10px;padding:8px;text-align:left;transition:.18s;cursor:pointer}.bg-preset:hover,.bg-preset.selected{border-color:#22aef0;box-shadow:0 0 18px rgba(22,166,235,.13);transform:translateY(-2px)}.bg-preset.selected{background:rgba(10,111,160,.18)}.bg-thumb{display:block;height:64px;border-radius:7px;margin-bottom:7px;border:1px solid rgba(255,255,255,.08);background-size:cover;background-position:center}.bg-thumb.arctic{background:radial-gradient(circle at 30% 25%,#1e7fa8,#071d2d 55%,#020d16)}.bg-thumb.midnight{background:linear-gradient(135deg,#02060b,#0a1622,#010307)}.bg-thumb.ocean{background:radial-gradient(circle at 20% 20%,#13a6d044,transparent 30%),linear-gradient(135deg,#021722,#075070,#01101b)}.bg-thumb.solid{background:#061925}.bg-thumb.image{background-color:#061925;background-size:cover}.bg-preset b{display:block;font-size:12px}.bg-preset small{display:block;color:#6f96aa;font-size:10px;margin-top:2px}.color-row{display:grid;grid-template-columns:60px 1fr;gap:10px;align-items:center}.color-row input[type=color]{width:60px;height:42px;border:1px solid rgba(55,146,184,.35);border-radius:9px;background:#02111c;padding:3px}.background-preview{height:150px;border-radius:11px;border:1px solid rgba(55,146,184,.25);margin:14px 0;background-position:center;background-size:cover;box-shadow:inset 0 0 40px rgba(0,0,0,.18)}
+@media(max-width:760px){.side{position:fixed;left:-250px;top:0;bottom:0;width:235px;transition:.25s}.side.open{left:0}.main{margin-left:0;padding:0 10px 18px}.top{position:sticky;top:6px}.account{min-width:48px;width:48px;padding:5px}.account>div:nth-child(2),.account .down{display:none}.search{width:100%;max-width:none}.top:before{content:"☰";font-size:20px;color:#8ddcff;margin:0 6px}.stats{grid-template-columns:1fr 1fr}.header h1{font-size:20px}.split{grid-template-columns:1fr}.profile-grid{grid-template-columns:1fr}.frozen-panel{width:min(550px,calc(100% - 28px));padding:28px 18px}.frozen-title{font-size:54px!important}}
+
+
+/* Smooth performance layer */
+html{scroll-behavior:smooth}
+*,*::before,*::after{scrollbar-width:thin}
+.btn,.stat,.appcard,.nav a,.iconbtn,.account{will-change:transform}
+.btn,.stat,.appcard,.nav a,.iconbtn,.account{transition:transform .16s ease,opacity .16s ease,box-shadow .16s ease,border-color .16s ease,background-color .16s ease}
+.side,.license-select,.top .search,.account,.header,.stat,.card,.footer,.appbar,.appcard,.code,.modalbox,.top{backdrop-filter:none!important}
+.arctic-glow .orb{filter:blur(32px)!important}
+.arctic-glow .orb,.arctic-glow:before{animation-duration:24s!important}
+body:after{animation-duration:32s!important}
+.frozen-snow{animation-duration:28s!important}
+.frozen-progress-bar{width:100%!important;transform:scaleX(0);transform-origin:left center;transition:transform .12s linear;will-change:transform}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
+  body:after,.frozen-snow,.arctic-glow:before{animation:none!important}
+}
+
+/* Full-window dark meteor background */
+html,body{min-height:100%;background:#05070b!important}
+body{position:relative;overflow-x:hidden}
+.meteor-field{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0;background:radial-gradient(circle at 20% 15%,rgba(36,88,238,.10),transparent 28%),radial-gradient(circle at 80% 70%,rgba(7,159,200,.07),transparent 30%),linear-gradient(180deg,#07090d 0%,#05070b 100%)}
+.meteor{position:absolute;top:-18vh;width:2px;height:150px;border-radius:999px;background:linear-gradient(to bottom,rgba(255,255,255,0),rgba(181,222,255,.95));filter:drop-shadow(0 0 5px rgba(130,199,255,.65));transform:rotate(-43deg);opacity:0;animation:meteorFall linear infinite}
+.meteor:after{content:"";position:absolute;bottom:-2px;left:50%;width:4px;height:4px;transform:translateX(-50%);border-radius:50%;background:#fff;box-shadow:0 0 10px #8fd4ff}
+@keyframes meteorFall{0%{transform:translate3d(0,-24vh,0) rotate(-43deg);opacity:0}7%{opacity:.95}78%{opacity:.8}100%{transform:translate3d(-95vw,125vh,0) rotate(-43deg);opacity:0}}
+/* Layering fix: startup loader must be a true viewport overlay, not part of page flow. */
+html.is-loading,html.is-loading body{height:100%!important;overflow:hidden!important}
+body.is-loading{overflow:hidden!important}
+#startupLoader{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;min-height:100vh!important;margin:0!important;padding:0!important;z-index:2147483647!important;display:grid!important;place-items:center!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important}
+#login,#app{transition:opacity .28s ease,visibility .28s ease}
+html.is-loading #login,html.is-loading #app{visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+#startupLoader.fade-out{opacity:0!important;visibility:hidden!important;pointer-events:none!important;transition:opacity .55s ease,visibility .55s ease}
+#login,#app,#startupLoader,#modal,#toast{z-index:1}
+.login{background:transparent!important}
+.layout{position:relative;background:transparent}
+.main{position:relative;background:rgba(5,7,11,.30)}
+@media (prefers-reduced-motion:reduce){.meteor{animation:none!important;display:none}}
+</style>
+</head>
+<body>
+<div id="meteorField" class="meteor-field" aria-hidden="true"></div>
+<div class="arctic-glow" aria-hidden="true">
+  <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+  <div class="arctic-lines"></div>
+</div>
+
+<div id="startupLoader" aria-label="Loading">
+  <div class="frozen-bg"></div><div class="frozen-snow"></div>
+  <div class="frozen-panel">
+    <div class="frozen-title">KRISHU</div>
+    <div class="frozen-edition">FROZEN EDITION</div>
+    <div class="frozen-status" id="loaderStatus">FREEZING</div>
+    <div class="frozen-dots">•••</div>
+    <div class="frozen-progress"><div id="loaderBar" class="frozen-progress-bar"></div></div>
+    <div id="loaderPercent" class="frozen-percent">0%</div>
+    <div class="frozen-version">Version 2.0.0 | Arctic Ice Edition</div>
+  </div>
+</div>
+
+<div id="login" class="login">
+  <div class="loginbox">
+    <div class="loginlogo">KeyAuth</div><p>เข้าสู่ระบบเพื่อจัดการแอปพลิเคชัน</p>
+    <div id="adminForm"><div class="field"><label>ชื่อผู้ใช้ Owner</label><input id="u" class="input" placeholder="OWNER_USERNAME" autocomplete="username"></div><div class="field"><label>รหัสผ่าน</label><input id="p" class="input" type="password" placeholder="OWNER_PASSWORD" autocomplete="current-password" onkeydown="if(event.key==='Enter')adminLogin()"></div><button class="btn blue wide" onclick="adminLogin()">เข้าสู่ระบบ Owner →</button></div>
+    <div id="err" class="error"></div><div class="hint">บัญชี Owner ถูกกำหนดจาก Railway Variables: OWNER_USERNAME และ OWNER_PASSWORD</div>
+  </div>
+</div>
+
+<div id="app" class="layout hidden">
+<aside class="side">
+  <div class="brand">KeyAuth</div>
+  <div class="license-select"><span class="chev">⌄</span><small>ใบสมัครของ</small><b id="sideApp">My Application</b></div>
+  <a class="nav active" data-page="apps" onclick="page('apps',this)"><span class="ico"><span data-icon="apps"></span></span>จัดการแอป</a>
+  <a class="nav" data-page="licenses" onclick="page('licenses',this)"><span class="ico"><span data-icon="key"></span></span>ใบอนุญาต</a>
+  <a class="nav" data-page="users" onclick="page('users',this)"><span class="ico"><span data-icon="users"></span></span>ผู้ใช้</a>
+  <a class="nav" data-page="tokens" onclick="page('tokens',this)"><span class="ico"><span data-icon="token"></span></span>โทเค็น</a>
+  <a class="nav" data-page="subscriptions" onclick="page('subscriptions',this)"><span class="ico"><span data-icon="sub"></span></span>การสมัครสมาชิก</a>
+  <a class="nav" data-page="sessions" onclick="page('sessions',this)"><span class="ico"><span data-icon="clock"></span></span>การประชุม</a>
+  <a class="nav" data-page="profile" onclick="page('profile',this)"><span class="ico"><span data-icon="user"></span></span>โปรไฟล์</a>
+  <a class="nav" data-page="settings" onclick="page('settings',this)"><span class="ico"><span data-icon="settings"></span></span>การตั้งค่า</a>
+  <a class="nav" onclick="logout()"><span class="ico"><span data-icon="logout"></span></span>ออกจากระบบ</a>
+  <div class="side-status"><span class="status-dot"></span><span><b>ระบบออนไลน์</b><small>Arctic Control Panel</small></span></div>
+</aside>
+<main class="main">
+  <div class="top"><button class="btn gray mobile-menu" type="button" onclick="toggleSidebar()">☰</button><input id="globalSearch" class="search" placeholder="⌕ ค้นหาหน้าเว็บ..." oninput="filterContent(this.value)"><div class="account" onclick="page('profile')" title="เปิดโปรไฟล์"><div class="avatar avatar-icon" id="avatarIcon"></div><div><b id="accountName">admin</b><small id="accountRole">ผู้ดูแลระบบ</small></div><span class="down">⌄</span></div></div>
+  <div id="content"></div>
+  <div class="footer">ลิขสิทธิ์ © 2020 - 2026 KeyAuth LLC &nbsp; • &nbsp; ข้อกำหนดและเงื่อนไข &nbsp; ความเป็นส่วนตัว &nbsp; ตัวอย่าง</div>
+</main></div>
+
+<div id="modal" class="modal"><div class="modalbox"><h2 id="modalTitle">สร้างข้อมูล</h2><div id="modalBody"></div><div class="modal-actions"><button class="btn gray" onclick="closeModal()">ยกเลิก</button><button id="modalOk" class="btn blue">บันทึก</button></div></div></div>
+<div id="toast" class="toast hidden"></div>
+<script>
+const ICONS={
+apps:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>',
+key:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8 2 2-2 2 2 2-2 2-2-2-4 4"/></svg>',
+users:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 5.2a3 3 0 0 1 0 5.6M18 14c2 .8 3 2.4 3 4.5"/></svg>',
+token:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 12h8M12 8v8"/><circle cx="12" cy="12" r="9"/></svg>',
+sub:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h12v18H6z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg>',
+clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg>',
+settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21h-2.6v-.2a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 8 15a1.7 1.7 0 0 0-1.6-1H6v-2.6h.4A1.7 1.7 0 0 0 8 10a1.7 1.7 0 0 0-.3-1.9l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6V5h2.6v.2a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1A1.7 1.7 0 0 0 19.4 10c.3.6.9 1 1.6 1h.4v2.6H21c-.7 0-1.3.4-1.6 1.4Z"/></svg>',
+logout:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 4H5v16h5M14 8l4 4-4 4M18 12H9"/></svg>',
+filter:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M7 12h10M10 18h4"/></svg>',
+grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>',
+plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>',
+copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>',
+edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/></svg>',
+trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 7h14M9 7V4h6v3M8 10v7M12 10v7M16 10v7M6 7l1 14h10l1-14"/></svg>',
+play:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 5v14l11-7L8 5Z"/></svg>',
+pause:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 5v14M16 5v14"/></svg>',
+user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3"/><path d="M5 20c.7-3.5 3-5 7-5s6.3 1.5 7 5"/></svg>'
+};
+const icon=k=>ICONS[k]||ICONS.grid;
+let token=localStorage.getItem('token')||'';let authMode='admin';let current='apps';const $=id=>document.getElementById(id);
+
+function mountIcons(){document.querySelectorAll('[data-icon]').forEach(el=>{el.innerHTML=icon(el.dataset.icon);el.classList.add('ico')});const av=$('avatarIcon');if(av)av.innerHTML=icon('user')}
+async function bulkDeleteLicenses(){
+  const ids=[...document.querySelectorAll('.license-check:checked')].map(x=>Number(x.value)).filter(Boolean);
+  if(!ids.length){toast('กรุณาเลือก License ที่ต้องการลบ','error');return}
+  if(!confirm(`ยืนยันลบ ${ids.length.toLocaleString('th-TH')} License ที่เลือก?`))return;
+  try{const r=await api('/licenses/delete-selected',{method:'POST',body:JSON.stringify(ids)});toast(`ลบแล้ว ${Number(r.deleted||0).toLocaleString('th-TH')} คีย์`);await licenses()}catch(e){toast(e.message||'ลบไม่สำเร็จ','error')}
+}
+async function deleteAllLicenses(){
+  const total=document.querySelectorAll('#licenseTableBody tr[data-license-id]').length;
+  if(!total){toast('ไม่มี License ให้ลบ','error');return}
+  if(!confirm(`ยืนยันลบ License ทั้งหมด ${total.toLocaleString('th-TH')} รายการ?\n\nการดำเนินการนี้ไม่สามารถย้อนกลับได้`))return;
+  try{const r=await api('/licenses-all',{method:'DELETE'});toast(`ลบ License ทั้งหมดแล้ว ${Number(r.deleted||0).toLocaleString('th-TH')} คีย์`);await licenses()}catch(e){toast(e.message||'ลบทั้งหมดไม่สำเร็จ','error')}
+}
+function toggleAllLicenseChecks(el){document.querySelectorAll('.license-check').forEach(x=>x.checked=el.checked)}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function jsq(v){return String(v??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}
+let toastTimer;function toast(m,type='success'){$('toast').textContent=m;$('toast').className='toast '+type;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.add('hidden'),2600)}
+async function api(path,opt={}){opt.headers={...(opt.headers||{}),'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})};let r=await fetch('/api'+path,opt);if(r.status===401){logout();throw new Error('Unauthorized')}let data=null;try{data=await r.json()}catch{}if(!r.ok)throw new Error(data?.message||'เกิดข้อผิดพลาด');return data}
+async function adminLogin(){try{const username=$('u').value.trim(),password=$('p').value;if(!username||!password)throw new Error('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน');let r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({Username:username,Password:password})});if(!r.ok)throw new Error(r.status===503?'ยังไม่ได้ตั้ง OWNER_USERNAME / OWNER_PASSWORD บน Railway':'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');let x=await r.json();startSession(x,'admin')}catch(e){$('err').textContent=e.message||'เข้าสู่ระบบไม่สำเร็จ'}}
+function startSession(x,mode){token=x.token;localStorage.setItem('token',token);localStorage.setItem('authMode',mode);$('login').classList.add('hidden');$('app').classList.remove('hidden');$('accountName').textContent=x.username||'admin';$('accountRole').textContent=mode==='license'?'License session':'ผู้ดูแลระบบ';hydrateAccount().finally(()=>page('apps'))}
+function logout(){localStorage.removeItem('token');localStorage.removeItem('authMode');token='';$('app').classList.add('hidden');$('login').classList.remove('hidden');$('p').value='';$('err').textContent=''}
+async function page(name,el){current=name;document.querySelectorAll('.nav').forEach(x=>x.classList.toggle('active',x.dataset.page===name));let fn={apps,licenses,users,tokens,subscriptions:subs,sessions,profile,settings}[name];if(!fn)return;showPageLoading();try{await fn()}catch(e){if(e?.message!=='Unauthorized'){$('content').innerHTML='<div class="card section error-state"><h2>โหลดข้อมูลไม่สำเร็จ</h2><p>'+esc(e.message||'เกิดข้อผิดพลาด')+'</p><button class="btn blue" onclick="page(current)">ลองอีกครั้ง</button></div>';toast(e.message||'เกิดข้อผิดพลาด','error')}}} 
+function showPageLoading(){if(!$('content'))return;$('content').innerHTML='<div class="page-skeleton"><div class="sk-line w30"></div><div class="sk-box"></div><div class="sk-grid"><i></i><i></i><i></i><i></i></div><div class="sk-large"></div></div>'} 
+
+function filterContent(q){q=(q||'').toLowerCase();document.querySelectorAll('#content .appcard,#content tbody tr').forEach(x=>x.style.display=x.textContent.toLowerCase().includes(q)?'':'none')}
+
+async function apps(){let [a,d]=await Promise.all([api('/apps'),api('/dashboard')]);let selectedId=Number(localStorage.getItem('selectedAppId')||0);let x=a.find(v=>v.id===selectedId)||a[0];if(x){$('sideApp').textContent=x.name;localStorage.setItem('selectedAppId',String(x.id));}$('content').innerHTML=`<div class="breadcrumb">⌂ &nbsp;»&nbsp; <strong>จัดการแอป</strong> &nbsp;»&nbsp; <strong>ใบสมัครปัจจุบัน: ${esc(x?.name||'My Application')}</strong> &nbsp;»&nbsp; <span class="red">คุณไม่ได้เลือกระดับใด</span> &nbsp;»&nbsp; <span class="link">จัดการแอปพลิเคชัน</span></div><div class="header"><h1>จัดการแอปพลิเคชัน</h1><p>จัดการแอปพลิเคชันของคุณ แอปพลิเคชันนี้มีข้อมูลสำคัญของคุณ</p></div><div class="stats"><div class="stat"><b>${d.apps}</b><span>แอปทั้งหมด</span></div><div class="stat"><b>${d.activeLicenses}</b><span>คล่องแล้ว</span></div><div class="stat"><b>${a.filter(v=>v.status==='paused').length}</b><span>หยุดชั่วคราว</span></div><div class="stat"><b>${d.sessions}</b><span>เซสชันแอคทีฟ</span></div></div><div class="split"><div class="card section"><h2>ข้อมูลประจำตัวผู้สมัคร</h2><div class="sub">เพียงแค่คลิกโค้ดตัวอย่างตัวใดตัวหนึ่ง</div><div class="switchrow"><button id="codeToggle" type="button" class="switch on" role="switch" aria-checked="true" aria-label="แสดงตัวอย่างโค้ด" onclick="toggleCodePreview()"></button><span>แสดงตัวอย่างโค้ด</span></div><div id="codePreviewArea"><label class="label">เลือกภาษา:</label><select id="lang" class="select" onchange="renderCode()"><option>C#</option><option>C++</option><option>Python</option><option>Java</option></select><div id="code" class="code"></div><div class="actions"><button class="btn blue" onclick="copyCode()">${icon('copy')} คัดลอกโค้ด</button><button class="btn green" onclick="previewCode()">${icon('play')} ดูตัวอย่าง</button><button class="btn gray" onclick="docs()">${icon('sub')} ดูบทแนะนำ</button></div></div></div><div class="card section"><div class="appbar"><strong>แอปพลิเคชันของฉัน</strong><input class="appsearch" placeholder="⌕ แอปพลิเคชันค้นหา..." oninput="filterContent(this.value)"></div><button class="btn blue create" onclick="newApp()">＋ &nbsp;สร้างแอปพลิเคชัน</button><div>${a.map(app=>`<div class="appcard"><div class="apphead"><span class="appname">${esc(app.name)}</span><span class="badge ${app.status==='paused'?'paused':''}">${app.status==='paused'?'หยุดชั่วคราว':'คล่องแล้ว'}</span></div><div class="appmeta"><div><small>เวอร์ชันแอป</small><b>${esc(app.version)}</b></div><div><small>ผู้ใช้</small><b>${d.users}</b></div><div><small>สถานะแอป</small><b>${app.status==='paused'?'หยุด':'ดี'}</b></div></div><div class="actions"><button class="btn green" onclick="selectApp(${app.id})">${icon('apps')} เลือกแล้ว</button><button class="btn purple" onclick="editApp(${app.id},'${jsq(app.name)}','${jsq(app.version)}','${jsq(app.description)}')">${icon('edit')} เปลี่ยนชื่อ</button><button class="btn cyan" onclick="editDesc(${app.id},'${jsq(app.name)}','${jsq(app.version)}','${jsq(app.description)}')">${icon('edit')} แก้ไขคำอธิบาย</button><button class="btn orange" onclick="toggleApp(${app.id})">${icon(app.status==='paused'?'play':'pause')} ${app.status==='paused'?'เปิดแอป':'หยุดชั่วคราว'}</button><button class="btn red" onclick="delApp(${app.id})">${icon('trash')} ลบ</button></div></div>`).join('')||'<div class="empty">ยังไม่มีแอปพลิเคชัน</div>'}</div></div></div>`;renderCode()}
+function renderCode(){let aName=$('sideApp').textContent||'My Application';let appsName=JSON.stringify(aName);let code={"C#":`public static api KeyAuthApp = new api(\n    name: ${appsName},\n    ownerid: "OWNER-001",\n    version: "1.0",\n    path: "@Your_Path_Here"\n);`,"C++":`KeyAuthApp.init(\n    "${aName}",\n    "OWNER-001",\n    "1.0"\n);`,"Python":`app = KeyAuth(\n    name="${aName}",\n    ownerid="OWNER-001",\n    version="1.0"\n)`,"Java":`KeyAuthApp app = new KeyAuthApp(\n    "${aName}",\n    "OWNER-001",\n    "1.0"\n);`};if($('code'))$('code').textContent=code[$('lang').value]}
+function toggleCodePreview(){const area=document.getElementById('codePreviewArea');const sw=document.getElementById('codeToggle');if(!area||!sw)return;const show=area.style.display==='none';area.style.display=show?'':'none';sw.classList.toggle('on',show);sw.setAttribute('aria-checked',String(show));if(show)renderCode();}
+function copyCode(){navigator.clipboard?.writeText($('code').textContent).then(()=>toast('คัดลอกโค้ดแล้ว')).catch(()=>toast('ไม่สามารถคัดลอกอัตโนมัติได้'))}function previewCode(){openModal('ตัวอย่างโค้ด',`<pre class="code" style="margin:0">${esc($('code').textContent)}</pre>`);$('modalOk').onclick=closeModal}function docs(){openModal('บทแนะนำ',`<p style="color:#bfc3c9">1. สร้างแอป → 2. สร้าง License → 3. ให้ไคลเอนต์เรียก <b>/client/license/validate</b> → 4. ใช้ token ที่ได้จาก License Login</p>`);$('modalOk').onclick=closeModal}
+async function selectApp(id){let a=await api('/apps');let x=a.find(v=>v.id===id);if(x){$('sideApp').textContent=x.name;localStorage.setItem('selectedAppId',String(id));toast('เลือก '+x.name+' แล้ว');renderCode()}}
+function openModal(title,body){$('modalTitle').textContent=title;$('modalBody').innerHTML=body;$('modal').style.display='grid'}function closeModal(){$('modal').style.display='none'}
+function showLicenseCreationResult(x){const keys=Array.isArray(x.keys)&&x.keys.length?x.keys:(Array.isArray(x.previewKeys)?x.previewKeys:[]);const limited=!Array.isArray(x.keys);openModal('คีย์ที่สร้างสำเร็จ',`<div class="license-result"><div class="license-result-head"><h2>สร้างใบอนุญาตสำเร็จ</h2><p>คีย์ที่สร้างจากคำสั่งล่าสุด พร้อมคัดลอกไปใช้งานได้ทันที</p></div><div class="license-result-body"><div class="license-result-stats"><div class="license-result-stat">สร้างสำเร็จ <b>${Number(x.count||keys.length).toLocaleString('th-TH')} คีย์</b></div>${x.expiresAt?`<div class="license-result-stat">หมดอายุ <b>${new Date(x.expiresAt).toLocaleString('th-TH')}</b></div>`:''}</div><textarea id="createdKeys" class="license-key-list" readonly>${esc(keys.join('\n'))}</textarea>${limited?'<p style="margin:8px 0 0;color:#d8a64b;font-size:11px">จำนวนคีย์มากเกินกว่าที่จะแสดงทั้งหมดในหน้าต่างนี้ จะแสดงตัวอย่าง 200 คีย์แรก</p>':''}</div><div class="license-result-actions"><button class="btn gray" onclick="closeModal()">ปิด</button><button class="btn green" onclick="copyCreatedKeys()">คัดลอกคีย์ทั้งหมดที่แสดง</button></div></div>`);const box=document.querySelector('.modalbox');if(box)box.classList.add('license-result');$('modalOk').style.display='none';}function copyCreatedKeys(){const el=$('createdKeys');if(!el)return;const text=el.value;navigator.clipboard?.writeText(text).then(()=>toast('คัดลอกคีย์แล้ว','success')).catch(()=>{el.focus();el.select();try{document.execCommand('copy');toast('คัดลอกคีย์แล้ว','success')}catch{toast('ไม่สามารถคัดลอกอัตโนมัติได้','error')}})}
+function formApp(existing={}){return `<div class="field"><label>ชื่อแอป</label><input id="mName" class="input" value="${esc(existing.name||'')}"></div><div class="field"><label>เวอร์ชัน</label><input id="mVersion" class="input" value="${esc(existing.version||'1.0')}"></div><div class="field"><label>คำอธิบาย</label><input id="mDesc" class="input" value="${esc(existing.description||'')}"></div>`}
+async function newApp(){openModal('สร้างแอปพลิเคชัน',formApp());$('modalOk').onclick=async()=>{try{await api('/apps',{method:'POST',body:JSON.stringify({Name:$('mName').value,Version:$('mVersion').value,Description:$('mDesc').value})});closeModal();toast('สร้างแอปแล้ว');apps()}catch(e){toast(e.message)}}}
+async function editApp(id,name,version,desc){openModal('แก้ไขแอปพลิเคชัน',formApp({name,version,description:desc}));$('modalOk').onclick=async()=>{try{await api('/apps/'+id,{method:'PUT',body:JSON.stringify({Name:$('mName').value,Version:$('mVersion').value,Description:$('mDesc').value})});closeModal();toast('บันทึกแล้ว');apps()}catch(e){toast(e.message)}}}
+async function editDesc(id,name,version,desc){editApp(id,name,version,desc)}
+async function toggleApp(id){try{await api('/apps/'+id+'/toggle',{method:'POST'});toast('อัปเดตสถานะแอปแล้ว');apps()}catch(e){toast(e.message)}}
+async function delApp(id){if(!confirm('ลบแอปนี้และข้อมูลที่เกี่ยวข้อง?'))return;try{await api('/apps/'+id,{method:'DELETE'});toast('ลบแอปแล้ว');apps()}catch(e){toast(e.message)}}
+
+async function licenses(){let [a,appsList]=await Promise.all([api('/licenses'),api('/apps')]);$('content').innerHTML=`<div class="breadcrumb">⌂ » <strong>ใบอนุญาต</strong></div><div class="header"><h1>ใบอนุญาต</h1><p>สร้างและจัดการ License Key ของแอปพลิเคชัน</p></div><div class="card section"><div class="toolbar"><input class="input" placeholder="ค้นหาใบอนุญาต..." oninput="filterContent(this.value)"><div class="toolbar-icons"><button class="btn-icon" title="ตัวกรอง" onclick="toast('ตัวกรองพร้อมใช้งาน')">${icon('filter')}</button><button class="btn-icon" title="มุมมองตาราง" onclick="toast('มุมมองตาราง')">${icon('grid')}</button><button class="btn-icon" title="สร้าง License" onclick="newLicense()">${icon('plus')}</button><button class="btn red iconbtn-label" onclick="bulkDeleteLicenses()">${icon('trash')} ลบที่เลือก</button><button class="btn red iconbtn-label" onclick="deleteAllLicenses()">${icon('trash')} ลบคีย์ทั้งหมด</button></div></div><div class="tablecard"><table class="table"><thead><tr><th><input type="checkbox" aria-label="เลือกทั้งหมด" onchange="toggleAllLicenseChecks(this)"></th><th>คีย์</th><th>App ID</th><th>สร้างเมื่อ</th><th>หมดอายุ</th><th>สถานะ</th><th>จัดการ</th></tr></thead><tbody id="licenseTableBody">${a.map(x=>`<tr data-license-id="${x.id}"><td><input class="license-check" type="checkbox" value="${x.id}" aria-label="เลือก ${esc(x.key)}"></td><td><b>${esc(x.key)}</b></td><td>${x.appId}</td><td>${new Date(x.createdAt).toLocaleString('th-TH')}</td><td>${new Date(x.expiresAt).toLocaleString('th-TH')}</td><td><span class="badge ${x.status!=='active'?'paused':''}">${esc(x.status)}</span></td><td><button class="btn ${x.status==='active'?'orange':'green'}" onclick="toggleLicense(${x.id},'${jsq(x.status)}')">${x.status==='active'?'หยุด':'เปิด'}</button> <button class="btn red" onclick="delLicense(${x.id})">ลบ</button></td></tr>`).join('')||'<tr><td colspan="7" class="empty">ยังไม่มีใบอนุญาต — เข้าหน้าแอดมินเพื่อสร้างคีย์</td></tr>'}</tbody></table></div></div>`}
+function newLicense(){api('/apps').then(a=>{
+  openModal('',`<div class="license-modal-inner">
+    <h2>สร้างใบอนุญาตใหม่</h2>
+    <div class="lm-field"><label class="lm-label">จำนวนใบอนุญาต<span class="req">*</span></label><div style="font-size:11px;color:#6f9aad;margin:-2px 0 7px">ไม่จำกัดจำนวน — ขึ้นอยู่กับพื้นที่ฐานข้อมูลและทรัพยากรเครื่อง</div><div class="lm-control"><input id="mCount" class="input" type="number" min="1" step="1" inputmode="numeric" value="1"><span class="lm-info">i</span></div></div>
+    <div class="lm-field"><label class="lm-label">หน้ากากใบอนุญาต<span class="req">*</span></label><div class="lm-control"><input id="mMask" class="input" value="KEYAUTH******"><span class="lm-info">i</span></div></div>
+    <div class="lm-checks"><label class="lm-check">ตัวอักษรพิมพ์เล็ก <input id="mLower" type="checkbox"></label><label class="lm-check">ตัวอักษรพิมพ์ใหญ่ <input id="mUpper" type="checkbox"></label></div>
+    <div class="lm-field"><label class="lm-label">ระดับการสมัครสมาชิก<span class="req">*</span></label><div class="lm-control"><select id="mLevel" class="select"><option value="1">1 (ค่าเริ่มต้น)</option><option value="2">2</option><option value="3">3</option></select><span class="lm-info">i</span></div></div>
+    <div class="lm-field"><label class="lm-label">หมายเหตุเกี่ยวกับใบอนุญาต</label><div class="lm-control"><input id="mNote" class="input"><span class="lm-info">i</span></div></div>
+    <div class="lm-grid"><div class="lm-field"><label class="lm-label">หน่วยหมดอายุ<span class="req">*</span></label><div class="lm-control"><select id="mUnit" class="select"><option value="days">วัน</option><option value="hours">ชั่วโมง</option><option value="minutes">นาที</option></select></div></div><div class="lm-field"><label class="lm-label">ระยะเวลาหมดอายุ<span class="req">*</span></label><div class="lm-control"><input id="mDays" class="input" type="number" min="1" value="1"><span class="lm-info">i</span></div></div></div>
+  </div>`);
+  const box=document.querySelector('.modalbox'); if(box) box.classList.add('license-modal');
+  document.querySelector('.modalbox h2').style.display='none';
+  const actions=document.querySelector('.modal-actions'); actions.className='lm-footer';
+  actions.innerHTML='<button class="btn gray" onclick="closeModal()">ยกเลิก</button><button id="modalOk" class="btn blue">สร้างใบอนุญาต</button>';
+  $('modalOk').onclick=async()=>{const btn=$('modalOk');if(btn.disabled)return;try{const unit=$('mUnit').value;const duration=Math.max(1,Math.floor(+$('mDays').value||1));const count=Math.max(1,Math.floor(+$('mCount').value||1));const mask=$('mMask').value.trim();if(!mask.includes('*')){toast('หน้ากากใบอนุญาตต้องมี * อย่างน้อย 1 ตัว','error');$('mMask').focus();return}btn.disabled=true;btn.textContent='กำลังสร้าง...';const x=await api('/licenses',{method:'POST',body:JSON.stringify({AppId:+$('mApp').value,Duration:duration,Note:$('mNote').value,Count:count,Mask:mask,Lowercase:$('mLower').checked,Uppercase:$('mUpper').checked,Level:+$('mLevel').value,Unit:unit})});closeModal();showLicenseCreationResult(x);await licenses()}catch(e){toast(e.message||'สร้างใบอนุญาตไม่สำเร็จ','error');btn.disabled=false;btn.textContent='สร้างใบอนุญาต'}};
+  const selectedId=Number(localStorage.getItem('selectedAppId')||0);
+  const selectedApp=a.find(v=>v.id===selectedId)||a[0];
+  const hiddenApp=document.createElement('input'); hiddenApp.type='hidden'; hiddenApp.id='mApp'; hiddenApp.value=selectedApp?.id||''; document.querySelector('.license-modal-inner').appendChild(hiddenApp);
+  if(!selectedApp){closeModal();toast('ยังไม่มีแอปพลิเคชัน กรุณาสร้างแอปก่อน','error');return}
+})}
+async function toggleLicense(id,status){try{await api('/licenses/'+id,{method:'PUT',body:JSON.stringify({Status:status==='active'?'paused':'active',Note:''})});licenses();toast('เปลี่ยนสถานะแล้ว')}catch(e){toast(e.message)}}async function delLicense(id){if(!confirm('ลบ License นี้?'))return;await api('/licenses/'+id,{method:'DELETE'});licenses();toast('ลบ License แล้ว')}
+
+async function users(){let a=await api('/users');$('content').innerHTML=crudPage('ผู้ใช้',a,['username','ip','status'],()=>newUser(),x=>delGeneric('/users/'+x.id,users),'＋ เพิ่มผู้ใช้')}
+async function tokens(){let a=await api('/tokens');$('content').innerHTML=crudPage('โทเค็น',a,['value','assignedTo','type','status'],()=>newToken(),x=>delGeneric('/tokens/'+x.id,tokens),'＋ สร้างโทเค็น')}
+async function subs(){let a=await api('/subscriptions');$('content').innerHTML=crudPage('การสมัครสมาชิก',a,['name','level','users'],()=>newSub(),x=>delGeneric('/subscriptions/'+x.id,subs),'＋ เพิ่มแพ็กเกจ')}
+async function sessions(){let a=await api('/sessions');$('content').innerHTML=crudPage('การประชุม',a,['username','ip','active','lastSeen'],null,x=>delGeneric('/sessions/'+x.id,sessions),'');}
+function crudPage(title,a,cols,add,del,addText){return `<div class="breadcrumb">⌂ » <strong>${title}</strong></div><div class="header"><h1>${title}</h1><p>จัดการข้อมูลจากฐานข้อมูลจริง</p></div><div class="card section"><div class="toolbar"><input class="input" placeholder="ค้นหา..." oninput="filterContent(this.value)">${add?`<button class="btn blue" onclick="(${add.toString()})()">${addText}</button>`:''}</div><div class="tablecard"><table class="table"><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}<th>จัดการ</th></tr></thead><tbody>${a.map(x=>`<tr>${cols.map(c=>`<td>${c==='active'?(x[c]?'ใช้งาน':'ปิด'):c==='lastSeen'?new Date(x[c]).toLocaleString('th-TH'):esc(x[c])}</td>`).join('')}<td>${del?`<button class="btn red" onclick="(${del.toString()})(${x.id})">ลบ</button>`:'—'}</td></tr>`).join('')||`<tr><td colspan="${cols.length+1}" class="empty">ยังไม่มีข้อมูล</td></tr>`}</tbody></table></div></div>`}
+function newUser(){openModal('เพิ่มผู้ใช้',`<div class="field"><label>ชื่อผู้ใช้</label><input id="mUser" class="input"></div><div class="field"><label>IP</label><input id="mIp" class="input" value="client"></div>`);$('modalOk').onclick=async()=>{await api('/users',{method:'POST',body:JSON.stringify({Username:$('mUser').value,Ip:$('mIp').value,Status:'active'})});closeModal();users()}}
+function newToken(){openModal('สร้างโทเค็น',`<div class="field"><label>กำหนดค่าเอง (เว้นว่างเพื่อสุ่ม)</label><input id="mToken" class="input"></div><div class="field"><label>ผู้รับ</label><input id="mAssigned" class="input"></div>`);$('modalOk').onclick=async()=>{await api('/tokens',{method:'POST',body:JSON.stringify({Value:$('mToken').value,AssignedTo:$('mAssigned').value,Type:'license',Status:'active'})});closeModal();tokens()}}
+function newSub(){openModal('เพิ่มแพ็กเกจ',`<div class="field"><label>ชื่อ</label><input id="mSub" class="input"></div><div class="field"><label>Level</label><input id="mLevel" class="input" type="number" value="1"></div><div class="field"><label>จำนวนผู้ใช้</label><input id="mUsers" class="input" type="number" value="0"></div>`);$('modalOk').onclick=async()=>{await api('/subscriptions',{method:'POST',body:JSON.stringify({Name:$('mSub').value,Level:+$('mLevel').value,Users:+$('mUsers').value})});closeModal();subs()}}
+async function delGeneric(path,fn){if(!confirm('ยืนยันการลบ?'))return;await api(path,{method:'DELETE'});fn();toast('ลบแล้ว')}
+
+async function profile(){
+  let p=await api('/profile');
+  const avatarIcon=p.avatar||'user';
+  $('content').innerHTML=`<div class="breadcrumb">⌂ » <strong>โปรไฟล์</strong></div>
+  <div class="header"><h1>โปรไฟล์ของฉัน</h1><p>แก้ไขข้อมูลโปรไฟล์และความปลอดภัยของบัญชี</p></div>
+  <div class="profile-grid">
+    <div class="card section profile-card">
+      <div class="profile-hero"><div class="profile-avatar" id="profileAvatar">${p.avatarData?`<img src="${esc(p.avatarData)}" alt="โปรไฟล์">`:icon(avatarIcon)}</div><div><h2>${esc(p.displayName||p.username)}</h2><p>@${esc(p.username)} · ${authMode==='license'?'License session':'ผู้ดูแลระบบ'}</p></div></div>
+      <div class="field"><label>ชื่อที่แสดง</label><input id="profileName" class="input" value="${esc(p.displayName||'')}" maxlength="40"></div>
+      <div class="field"><label>คำอธิบาย</label><textarea id="profileBio" class="input profile-textarea" maxlength="180" placeholder="เขียนคำอธิบายสั้น ๆ เกี่ยวกับบัญชีของคุณ...">${esc(p.bio||'')}</textarea></div>
+      <div class="field"><label>รูปโปรไฟล์</label><div class="avatar-upload"><label class="avatar-upload-btn" for="profileImageInput">${icon('edit')} เลือกรูปจากเครื่อง</label><input id="profileImageInput" class="avatar-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="previewProfileImage(event)"><span class="avatar-hint">PNG, JPG, WEBP หรือ GIF ขนาดไม่เกิน 1 MB</span></div><input type="hidden" id="profileAvatarData" value="${esc(p.avatarData||'')}"></div>
+      <div class="field"><label>ไอคอนสำรอง</label><div class="avatar-picks">${['user','apps','key','clock','settings'].map(k=>`<button type="button" class="avatar-pick ${!p.avatarData&&avatarIcon===k?'selected':''}" onclick="selectAvatar('${k}',this)">${icon(k)}</button>`).join('')}</div><input type="hidden" id="profileAvatarValue" value="${esc(avatarIcon)}"></div>
+      <button class="btn blue" onclick="saveProfile()">${icon('edit')} บันทึกโปรไฟล์</button>
+    </div>
+    <div class="card section">
+      <h2>บัญชีและความปลอดภัย</h2><div class="sub">ข้อมูลการเข้าสู่ระบบของบัญชีนี้</div>
+      <div class="profile-info"><div><small>ชื่อผู้ใช้</small><b>${esc(p.username)}</b></div><div><small>ประเภทบัญชี</small><b>${authMode==='license'?'License':'Admin'}</b></div><div><small>อัปเดตล่าสุด</small><b>${p.updatedAt?new Date(p.updatedAt).toLocaleString('th-TH'):'—'}</b></div></div>
+      <div class="profile-divider"></div><h2>รหัสผ่าน Owner</h2><div class="sub">บัญชีนี้ควบคุมด้วย Railway Variables เพื่อไม่เก็บรหัสผ่านไว้ในฐานข้อมูล</div><div class="profile-note">หากต้องการเปลี่ยนบัญชี ให้แก้ <b>OWNER_USERNAME</b> หรือ <b>OWNER_PASSWORD</b> ใน Railway → Variables แล้ว Redeploy</div>
+    </div>
+  </div>`;
+}
+function selectAvatar(k,el){document.querySelectorAll('.avatar-pick').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');$('profileAvatarValue').value=k;$('profileAvatarData').value='';$('profileAvatar').innerHTML=icon(k)}
+function previewProfileImage(ev){const f=ev.target.files?.[0];if(!f)return;if(!['image/png','image/jpeg','image/webp','image/gif'].includes(f.type)){toast('รองรับเฉพาะ PNG, JPG, WEBP และ GIF');ev.target.value='';return}if(f.size>1024*1024){toast('รูปโปรไฟล์ต้องมีขนาดไม่เกิน 1 MB');ev.target.value='';return}const r=new FileReader();r.onload=()=>{const data=String(r.result);$('profileAvatarData').value=data;$('profileAvatar').innerHTML=`<img src="${data}" alt="โปรไฟล์">`;document.querySelectorAll('.avatar-pick').forEach(x=>x.classList.remove('selected'));};r.readAsDataURL(f)}
+async function saveProfile(){try{let x=await api('/profile',{method:'PUT',body:JSON.stringify({DisplayName:$('profileName').value,Bio:$('profileBio').value,Avatar:$('profileAvatarValue').value,AvatarData:$('profileAvatarData').value})});$('accountName').textContent=x.displayName; $('avatarIcon').innerHTML=x.avatarData?`<img src="${esc(x.avatarData)}" alt="โปรไฟล์">`:icon(x.avatar); toast('บันทึกโปรไฟล์แล้ว');}catch(e){toast(e.message)}}
+async function changePassword(){try{await api('/profile/password',{method:'PUT',body:JSON.stringify({CurrentPassword:$('oldPass').value,NewPassword:$('newPass').value})});$('oldPass').value='';$('newPass').value='';toast('เปลี่ยนรหัสผ่านแล้ว')}catch(e){toast(e.message)}}
+
+async function settings(){
+  let a=await api('/settings');
+  const mode=a.backgroundMode||'arctic';
+  $('content').innerHTML=`<div class="breadcrumb">⌂ » <strong>การตั้งค่า</strong></div>
+  <div class="header"><h1>การตั้งค่า</h1><p>กำหนดค่าระบบ แบรนด์ และพื้นหลังเว็บไซต์</p></div>
+  <div class="card section settings-card">
+    <h2>ทั่วไป</h2><div class="sub">ตั้งค่าชื่อและรายละเอียดของระบบ</div>
+    <div class="field"><label>ชื่อแบรนด์</label><input id="sbrand" class="input" value="${esc(a.brand||'KeyAuth')}"></div>
+    <div class="field"><label>คำอธิบาย</label><input id="sdesc" class="input" value="${esc(a.description||'')}"></div>
+    <div class="settings-divider"></div>
+    <h2>พื้นหลังเว็บไซต์</h2><div class="sub">เปลี่ยนพื้นหลังสำหรับหน้า Dashboard ได้ทันที และบันทึกไว้ในระบบ</div>
+    <div class="bg-presets">
+      <button type="button" class="bg-preset ${mode==='arctic'?'selected':''}" onclick="pickBgMode('arctic',this)"><span class="bg-thumb arctic"></span><b>Arctic</b><small>น้ำเงินเย็น + ดาว</small></button>
+      <button type="button" class="bg-preset ${mode==='midnight'?'selected':''}" onclick="pickBgMode('midnight',this)"><span class="bg-thumb midnight"></span><b>Midnight</b><small>เข้มเรียบหรู</small></button>
+      <button type="button" class="bg-preset ${mode==='ocean'?'selected':''}" onclick="pickBgMode('ocean',this)"><span class="bg-thumb ocean"></span><b>Ocean</b><small>คลื่นแสงสีน้ำเงิน</small></button>
+      <button type="button" class="bg-preset ${mode==='solid'?'selected':''}" onclick="pickBgMode('solid',this)"><span class="bg-thumb solid"></span><b>สีพื้น</b><small>เลือกสีเอง</small></button>
+      <button type="button" class="bg-preset ${mode==='image'?'selected':''}" onclick="pickBgMode('image',this)"><span class="bg-thumb image" style="${a.backgroundImage?`background-image:url('${esc(a.backgroundImage)}')`:''}"></span><b>รูปของฉัน</b><small>อัปโหลดจากเครื่อง</small></button>
+    </div>
+    <input type="hidden" id="bgMode" value="${esc(mode)}">
+    <div class="field"><label>สีพื้นหลัง</label><div class="color-row"><input id="bgColor" type="color" value="${/^#[0-9a-fA-F]{6}$/.test(a.backgroundColor||'')?a.backgroundColor:'#061925'}"><input id="bgColorText" class="input" value="${esc(a.backgroundColor||'#061925')}" maxlength="7" oninput="syncBgColorText()"></div></div>
+    <div class="field"><label>รูปพื้นหลัง</label><div class="avatar-upload"><label class="avatar-upload-btn" for="bgImageInput">${icon('edit')} เลือกรูปพื้นหลัง</label><input id="bgImageInput" class="avatar-file" type="file" accept="image/png,image/jpeg,image/webp" onchange="previewBackground(event)"><span class="avatar-hint">PNG, JPG หรือ WEBP ขนาดไม่เกิน 2 MB</span></div><input type="hidden" id="bgImageData" value="${esc(a.backgroundImage||'')}"></div>
+    <div class="field"><label>ความเข้ม Overlay <span id="bgOverlayLabel">${Math.round((parseFloat(a.backgroundOverlay||'.18'))*100)}%</span></label><input id="bgOverlay" type="range" min="0" max="0.75" step="0.01" value="${esc(a.backgroundOverlay||'.18')}" oninput="$('bgOverlayLabel').textContent=Math.round(Number(this.value)*100)+'%'"></div>
+    <div class="background-preview" id="backgroundPreview"></div>
+    <div class="actions"><button class="btn blue" onclick="saveSettings()">${icon('save')} บันทึกการเปลี่ยนแปลง</button><button class="btn gray" onclick="resetBackgroundSettings()">รีเซ็ตพื้นหลัง</button></div>
+  </div>`; syncBgColor(); renderBackgroundPreview();
+}
+function pickBgMode(mode,el){$('bgMode').value=mode;document.querySelectorAll('.bg-preset').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');renderBackgroundPreview()}
+function syncBgColor(){const c=$('bgColor')?.value||'#061925';if($('bgColorText'))$('bgColorText').value=c;renderBackgroundPreview()}
+function syncBgColorText(){let v=$('bgColorText').value.trim();if(/^#[0-9a-fA-F]{6}$/.test(v)&&$('bgColor'))$('bgColor').value=v;renderBackgroundPreview()}
+function previewBackground(ev){const f=ev.target.files?.[0];if(!f)return;if(!['image/png','image/jpeg','image/webp'].includes(f.type)){toast('รองรับเฉพาะ PNG, JPG และ WEBP','error');ev.target.value='';return}if(f.size>2*1024*1024){toast('รูปพื้นหลังต้องมีขนาดไม่เกิน 2 MB','error');ev.target.value='';return}const r=new FileReader();r.onload=()=>{$('bgImageData').value=String(r.result);$('bgMode').value='image';document.querySelectorAll('.bg-preset').forEach(x=>x.classList.remove('selected'));document.querySelector('.bg-preset:last-of-type')?.classList.add('selected');renderBackgroundPreview()};r.readAsDataURL(f)}
+function renderBackgroundPreview(){const el=$('backgroundPreview');if(!el)return;const mode=$('bgMode').value,color=$('bgColor')?.value||'#061925',img=$('bgImageData')?.value||'';let bg='';if(mode==='arctic')bg='radial-gradient(circle at 50% 20%,#0a2940,#061c2b 55%,#02121d)';else if(mode==='midnight')bg='linear-gradient(135deg,#02070d,#07111d 50%,#010409)';else if(mode==='ocean')bg='radial-gradient(circle at 20% 20%,#0b6f9b22,transparent 32%),linear-gradient(135deg,#021722,#06334a 52%,#01101b)';else if(mode==='solid')bg=color;else if(mode==='image'&&img)bg=`url("${img}") center/cover`;else bg=color;el.style.background=bg}
+async function saveSettings(){try{const values={brand:$('sbrand').value,description:$('sdesc').value,backgroundMode:$('bgMode').value,backgroundColor:$('bgColor')?.value||'#061925',backgroundImage:$('bgImageData')?.value||'',backgroundOverlay:$('bgOverlay')?.value||'.18'};await api('/settings',{method:'PUT',body:JSON.stringify(values)});applyBackgroundSettings(values);toast('บันทึกการตั้งค่าและพื้นหลังแล้ว','success')}catch(e){toast(e.message||'บันทึกไม่สำเร็จ','error')}}
+async function resetBackgroundSettings(){const values={backgroundMode:'arctic',backgroundColor:'#061925',backgroundImage:'',backgroundOverlay:'.18'};try{await api('/settings',{method:'PUT',body:JSON.stringify(values)});$('bgMode').value='arctic';$('bgColor').value='#061925';$('bgColorText').value='#061925';$('bgImageData').value='';$('bgOverlay').value='.18';$('bgOverlayLabel').textContent='18%';document.querySelectorAll('.bg-preset').forEach(x=>x.classList.toggle('selected',x.querySelector('b')?.textContent==='Arctic'));applyBackgroundSettings(values);renderBackgroundPreview();toast('รีเซ็ตพื้นหลังแล้ว','success')}catch(e){toast(e.message||'รีเซ็ตไม่สำเร็จ','error')}}
+function applyBackgroundSettings(a){const mode=a.backgroundMode||'arctic',color=a.backgroundColor||'#061925',img=a.backgroundImage||'',overlay=Math.min(.75,Math.max(0,Number(a.backgroundOverlay??.18)));document.documentElement.style.setProperty('--site-bg-color',color);document.documentElement.style.setProperty('--site-bg-image',mode==='image'&&img?`url("${img}")`:'none');document.documentElement.style.setProperty('--site-bg-overlay',String(overlay));document.body.dataset.bgMode=mode;document.body.style.setProperty('--active-bg',mode==='solid'?color:(mode==='image'&&img?'var(--site-bg-image)':''));}
+async function hydrateBackground(){try{const a=await api('/settings');applyBackgroundSettings(a)}catch{}}
+
+
+function toggleSidebar(){document.querySelector('.side')?.classList.toggle('open')}
+function copyText(text){navigator.clipboard?.writeText(text).then(()=>toast('คัดลอกแล้ว')).catch(()=>toast('ไม่สามารถคัดลอกอัตโนมัติ','error'))}
+function setBusy(btn,busy,label){if(!btn)return;if(busy){btn.dataset.oldText=btn.innerHTML;btn.disabled=true;btn.innerHTML='กำลังดำเนินการ…'}else{btn.disabled=false;btn.innerHTML=label||btn.dataset.oldText||'บันทึก'}}
+function startFrozenLoader(){
+  document.documentElement.classList.add('is-loading');
+  document.body.classList.add('is-loading');
+  const loader=$('startupLoader'),bar=$('loaderBar'),pct=$('loaderPercent'),status=$('loaderStatus');
+  let progress=0;
+  const messages=[[0,'FREEZING'],[25,'INITIALIZING'],[50,'LOADING'],[75,'ALMOST READY'],[92,'READY']];
+  const timer=setInterval(()=>{
+    progress=Math.min(100,progress+1);
+    bar.style.transform='scaleX('+(progress/100)+')'; pct.textContent=progress+'%';
+    for(let i=messages.length-1;i>=0;i--) if(progress>=messages[i][0]){status.textContent=messages[i][1];break}
+    if(progress>=100){
+      clearInterval(timer);
+      setTimeout(()=>{
+        loader.classList.add('fade-out');
+        document.documentElement.classList.remove('is-loading');
+        document.body.classList.remove('is-loading');
+        setTimeout(()=>loader.remove(),600);
+      },260);
+    }
+  },30);
+}
+startFrozenLoader();
+async function hydrateAccount(){if(!token)return;try{let p=await api('/profile');$('accountName').textContent=p.displayName||p.username;$('accountRole').textContent=authMode==='license'?'License session':'ผู้ดูแลระบบ';$('avatarIcon').innerHTML=p.avatarData?`<img src="${esc(p.avatarData)}" alt="โปรไฟล์">`:icon(p.avatar||'user')}catch{}}
+function createMeteors(){const field=$('meteorField');if(!field)return;field.innerHTML='';const count=window.innerWidth<700?8:16;for(let i=0;i<count;i++){const m=document.createElement('span');m.className='meteor';m.style.left=(15+Math.random()*120)+'vw';m.style.animationDuration=(4.8+Math.random()*5.5)+'s';m.style.animationDelay=(-Math.random()*12)+'s';m.style.height=(85+Math.random()*150)+'px';m.style.opacity=(.35+Math.random()*.55).toFixed(2);field.appendChild(m)}}
+window.addEventListener('resize',()=>{clearTimeout(window.__meteorResize);window.__meteorResize=setTimeout(createMeteors,180)});
+mountIcons();createMeteors();hydrateBackground();if(token){$('login').classList.add('hidden');$('app').classList.remove('hidden');hydrateAccount().finally(()=>setTimeout(()=>page('apps'),0))}
+
+// Keyboard and modal quality-of-life controls
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();if(e.key==='Enter'&&$('login')&&!$('login').classList.contains('hidden')){e.preventDefault();authMode==='license'?licenseLogin():adminLogin()}});$('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+
+// Ambient Arctic particles: lightweight and decorative only.
+(function(){
+  const layer=document.querySelector('.arctic-glow');
+  if(!layer) return;
+  const glyphs=['·','✦','✧','❄'];
+  const count=Math.min(22, Math.max(12, Math.floor(window.innerWidth/72)));
+  for(let i=0;i<count;i++){
+    const s=document.createElement('span');
+    s.className='snowflake';
+    s.textContent=glyphs[i%glyphs.length];
+    s.style.left=(Math.random()*100)+'%';
+    s.style.fontSize=(7+Math.random()*9)+'px';
+    s.style.animationDuration=(10+Math.random()*15)+'s';
+    s.style.animationDelay=(-Math.random()*20)+'s';
+    s.style.opacity=(.18+Math.random()*.42);
+    layer.appendChild(s);
+  }
+})();
+
+</script>
+</body></html>
