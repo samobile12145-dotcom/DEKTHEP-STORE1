@@ -697,6 +697,7 @@ static string CreateMaskedKey(string? mask, bool lowercase, bool uppercase)
 record LoginRequest(string Username, string Password);
 record RegisterRequest(string Username, string Password);
 record IpBanRequest(string Ip, string? Reason);
+record RoleUpdate(string? Role);
 record SecurityReport(string? Reason);
 record TeamMessageRequest(string? Message);
 record LicenseLoginRequest(string Key, string? HwId);
