@@ -63,3 +63,36 @@ dotnet run
 
 ## Login
 หน้าเว็บใช้เฉพาะบัญชี Owner จาก `OWNER_USERNAME` และ `OWNER_PASSWORD` แล้ว ไม่มีค่า username/password ฝังไว้ในหน้า Login
+
+## Panel API
+
+ตั้งค่า Railway Variable:
+
+`PANEL_API_KEY=your-long-random-panel-key`
+
+เรียก API ด้วย header:
+
+`X-Panel-Key: your-long-random-panel-key`
+
+Base URL:
+
+`/api/panel`
+
+Endpoints:
+
+- `GET /api/panel/info`
+- `GET /api/panel/dashboard`
+- `GET /api/panel/apps`
+- `GET /api/panel/licenses`
+- `GET /api/panel/users`
+- `GET /api/panel/accounts`
+- `GET /api/panel/sessions`
+- `GET /api/panel/ip-bans`
+- `GET /api/panel/security-logs`
+- `GET /api/panel/team-chat`
+- `POST /api/panel/licenses`
+- `POST /api/panel/ip-bans`
+- `POST /api/panel/ip-bans/{id}/release`
+- `POST /api/panel/team-chat`
+
+The panel API is separate from the browser dashboard JWT authentication. If `PANEL_API_KEY` is not configured, the panel API returns `503`.
