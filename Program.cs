@@ -396,9 +396,11 @@ panelApi.MapPost("/ip-bans/{id:int}/release", async (int id, AppDb db) =>
     var ban = await db.IpBans.FindAsync(id);
     if (ban is null) return Results.NotFound(new { success = false, message = "IP ban not found" });
     ban.Active = false; ban.ReleasedAt = DateTime.UtcNow; ban.ReleasedBy = "panel-api";
+    var restored = await db.Accounts.Where(x => x.Ip == ban.Ip && x.Status == "banned").ToListAsync();
+    foreach (var account in restored) account.Status = "active";
     db.SecurityLogs.Add(new SecurityLog { Username = "panel-api", Ip = ban.Ip, Role = "admin", Action = "ip-unban", Reason = "Panel API release" });
     await db.SaveChangesAsync();
-    return Results.Ok(new { success = true, ip = ban.Ip });
+    return Results.Ok(new { success = true, ip = ban.Ip, restoredAccounts = restored.Count });
 });
 panelApi.MapPost("/team-chat", async (TeamMessageRequest req, AppDb db) =>
 {
@@ -451,7 +453,20 @@ adminApi.MapDelete("/roles/{id:int}", async (int id, AppDb db) =>
 });
 
 // Owner-only IP suspension management.
-adminApi.MapGet("/ip-bans", async (ClaimsPrincipal user, AppDb db) => { if (!IsOwnerIdentity(user)) return Results.Forbid(); return Results.Ok(await db.IpBans.OrderByDescending(x => x.Id).ToListAsync()); });
+adminApi.MapGet("/ip-bans", async (ClaimsPrincipal user, AppDb db) =>
+{
+    if (!IsOwnerIdentity(user)) return Results.Forbid();
+    var bans = await db.IpBans.AsNoTracking().OrderByDescending(x => x.Id).ToListAsync();
+    return Results.Ok(bans);
+});
+adminApi.MapGet("/ip-info", async (ClaimsPrincipal user, HttpContext http, AppDb db) =>
+{
+    if (!IsOwnerIdentity(user)) return Results.Forbid();
+    var ip = GetClientIp(http);
+    var forwarded = http.Request.Headers["X-Forwarded-For"].FirstOrDefault() ?? "";
+    var banned = await IsIpBanned(db, ip);
+    return Results.Ok(new { ip, banned, forwardedFor = forwarded });
+});
 adminApi.MapPost("/ip-bans", async (IpBanRequest req, ClaimsPrincipal user, AppDb db) =>
 {
     if (!IsOwnerIdentity(user)) return Results.Forbid();
@@ -465,15 +480,32 @@ adminApi.MapPost("/ip-bans", async (IpBanRequest req, ClaimsPrincipal user, AppD
     await db.SaveChangesAsync();
     return Results.Ok(new { success = true });
 });
+adminApi.MapPost("/ip-bans/release-current", async (ClaimsPrincipal user, HttpContext http, AppDb db) =>
+{
+    if (!IsOwnerIdentity(user)) return Results.Forbid();
+    var ip = GetClientIp(http);
+    var ban = await db.IpBans.SingleOrDefaultAsync(x => x.Ip == ip && x.Active);
+    if (ban is null) return Results.NotFound(new { message = "IP เครื่องนี้ไม่ได้ถูกระงับ" });
+    ban.Active = false;
+    ban.ReleasedAt = DateTime.UtcNow;
+    ban.ReleasedBy = user.Identity?.Name ?? "owner";
+    var restored = await db.Accounts.Where(x => x.Ip == ip && x.Status == "banned").ToListAsync();
+    foreach (var account in restored) account.Status = "active";
+    db.SecurityLogs.Add(new SecurityLog { Username = user.Identity?.Name ?? "owner", Ip = ip, Role = "admin", Action = "ip-unban-current", Reason = "ปลดระงับ IP เครื่องปัจจุบัน", CreatedAt = DateTime.UtcNow });
+    await db.SaveChangesAsync();
+    return Results.Ok(new { success = true, ip, restoredAccounts = restored.Count, active = false });
+});
 adminApi.MapPost("/ip-bans/{id:int}/release", async (int id, ClaimsPrincipal user, AppDb db) =>
 {
     if (!IsOwnerIdentity(user)) return Results.Forbid();
     var ban = await db.IpBans.FindAsync(id);
     if (ban is null) return Results.NotFound();
     ban.Active = false; ban.ReleasedAt = DateTime.UtcNow; ban.ReleasedBy = user.Identity?.Name ?? "owner";
+    var restored = await db.Accounts.Where(x => x.Ip == ban.Ip && x.Status == "banned").ToListAsync();
+    foreach (var account in restored) account.Status = "active";
     db.SecurityLogs.Add(new SecurityLog { Username = user.Identity?.Name ?? "owner", Ip = ban.Ip, Role = "admin", Action = "ip-unban", Reason = "ปลดระงับ IP", CreatedAt = DateTime.UtcNow });
     await db.SaveChangesAsync();
-    return Results.Ok(ban);
+    return Results.Ok(new { success = true, ip = ban.Ip, restoredAccounts = restored.Count, active = ban.Active });
 });
 adminApi.MapGet("/security-logs", async (AppDb db) => Results.Ok(await db.SecurityLogs.OrderByDescending(x => x.Id).Take(500).ToListAsync()));
 adminApi.MapGet("/team-chat", async (AppDb db) => Results.Ok(await db.TeamMessages.OrderByDescending(x => x.Id).Take(200).ToListAsync()));
