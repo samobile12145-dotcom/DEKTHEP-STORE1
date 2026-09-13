@@ -254,6 +254,16 @@ panelApi.MapGet("/apps", async (AppDb db) => Results.Ok(await db.Apps.AsNoTracki
 panelApi.MapGet("/licenses", async (AppDb db) => Results.Ok(await db.Licenses.AsNoTracking().OrderByDescending(x => x.Id).ToListAsync()));
 panelApi.MapGet("/users", async (AppDb db) => Results.Ok(await db.Users.AsNoTracking().OrderByDescending(x => x.Id).ToListAsync()));
 panelApi.MapGet("/accounts", async (AppDb db) => Results.Ok(await db.Accounts.AsNoTracking().Select(x => new { x.Id, x.Username, x.Role, x.Ip, x.Status, x.CreatedAt }).OrderByDescending(x => x.Id).ToListAsync()));
+panelApi.MapPut("/accounts/{id:int}/role", async (int id, RoleUpdate req, AppDb db) =>
+{
+    var account = await db.Accounts.FindAsync(id);
+    if (account is null) return Results.NotFound(new { success = false, message = "Account not found" });
+    var role = (req.Role ?? "user").Trim().ToLowerInvariant();
+    if (role is not ("user" or "moderator")) return Results.BadRequest(new { success = false, message = "Role must be user or moderator" });
+    account.Role = role;
+    await db.SaveChangesAsync();
+    return Results.Ok(new { success = true, account.Id, account.Username, account.Role });
+});
 panelApi.MapGet("/sessions", async (AppDb db) => Results.Ok(await db.Sessions.AsNoTracking().OrderByDescending(x => x.Id).ToListAsync()));
 panelApi.MapGet("/ip-bans", async (AppDb db) => Results.Ok(await db.IpBans.AsNoTracking().OrderByDescending(x => x.Id).ToListAsync()));
 panelApi.MapGet("/security-logs", async (AppDb db) => Results.Ok(await db.SecurityLogs.AsNoTracking().OrderByDescending(x => x.Id).Take(500).ToListAsync()));
