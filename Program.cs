@@ -475,25 +475,41 @@ adminApi.MapPost("/ip-bans", async (IpBanRequest req, ClaimsPrincipal user, AppD
     if (await IsOwnerIp(db, ip)) return Results.BadRequest(new { message = "IP ของ Owner ไม่สามารถระงับได้" });
     var existing = await db.IpBans.SingleOrDefaultAsync(x => x.Ip == ip);
     if (existing is null) db.IpBans.Add(new IpBan { Ip = ip, Reason = (req.Reason ?? "ระงับโดย Owner").Trim(), BannedBy = user.Identity?.Name ?? "owner", Active = true, CreatedAt = DateTime.UtcNow });
-    else { existing.Active = true; existing.Reason = (req.Reason ?? existing.Reason).Trim(); existing.ReleasedAt = null; existing.ReleasedBy = null; }
-    db.SecurityLogs.Add(new SecurityLog { Username = user.Identity?.Name ?? "owner", Ip = ip, Role = "admin", Action = "ip-ban", Reason = req.Reason ?? "ระงับโดย Owner", CreatedAt = DateTime.UtcNow });
+    else { existing.Active = true; existing.Reason = (req.Reason ?? existing.Reason).Trim(); existing.BannedBy = user.Identity?.Name ?? "owner"; existing.ReleasedAt = null; existing.ReleasedBy = null; }
+    var affectedAccounts = await db.Accounts.Where(x => x.Ip == ip && x.Role != "admin" && x.Status != "banned").ToListAsync();
+    foreach (var account in affectedAccounts) account.Status = "banned";
+    var affectedSessions = await db.Sessions.Where(x => x.Ip == ip && x.Active).ToListAsync();
+    foreach (var session in affectedSessions) session.Active = false;
+    db.SecurityLogs.Add(new SecurityLog { Username = user.Identity?.Name ?? "owner", Ip = ip, Role = "owner", Action = "ip-ban", Reason = req.Reason ?? "ระงับโดย Owner", CreatedAt = DateTime.UtcNow });
     await db.SaveChangesAsync();
-    return Results.Ok(new { success = true });
+    return Results.Ok(new { success = true, ip, affectedAccounts = affectedAccounts.Count, affectedSessions = affectedSessions.Count });
 });
 adminApi.MapPost("/ip-bans/release-current", async (ClaimsPrincipal user, HttpContext http, AppDb db) =>
 {
     if (!IsOwnerIdentity(user)) return Results.Forbid();
     var ip = GetClientIp(http);
-    var ban = await db.IpBans.SingleOrDefaultAsync(x => x.Ip == ip && x.Active);
-    if (ban is null) return Results.NotFound(new { message = "IP เครื่องนี้ไม่ได้ถูกระงับ" });
-    ban.Active = false;
-    ban.ReleasedAt = DateTime.UtcNow;
-    ban.ReleasedBy = user.Identity?.Name ?? "owner";
+    var ban = await db.IpBans.SingleOrDefaultAsync(x => x.Ip == ip);
     var restored = await db.Accounts.Where(x => x.Ip == ip && x.Status == "banned").ToListAsync();
     foreach (var account in restored) account.Status = "active";
-    db.SecurityLogs.Add(new SecurityLog { Username = user.Identity?.Name ?? "owner", Ip = ip, Role = "admin", Action = "ip-unban-current", Reason = "ปลดระงับ IP เครื่องปัจจุบัน", CreatedAt = DateTime.UtcNow });
+    var wasActive = ban?.Active == true;
+    if (ban is not null) { ban.Active = false; ban.ReleasedAt = DateTime.UtcNow; ban.ReleasedBy = user.Identity?.Name ?? "owner"; }
+    db.SecurityLogs.Add(new SecurityLog { Username = user.Identity?.Name ?? "owner", Ip = ip, Role = "owner", Action = "ip-unban-current", Reason = wasActive ? "ปลดระงับ IP เครื่องปัจจุบัน" : "ตรวจสอบ/ปลดระงับ IP เครื่องปัจจุบัน", CreatedAt = DateTime.UtcNow });
     await db.SaveChangesAsync();
-    return Results.Ok(new { success = true, ip, restoredAccounts = restored.Count, active = false });
+    return Results.Ok(new { success = true, ip, wasActive, restoredAccounts = restored.Count, active = false });
+});
+adminApi.MapPost("/ip-bans/release-by-ip", async (IpBanRequest req, ClaimsPrincipal user, AppDb db) =>
+{
+    if (!IsOwnerIdentity(user)) return Results.Forbid();
+    var ip = (req.Ip ?? "").Trim();
+    if (!IsValidIp(ip)) return Results.BadRequest(new { message = "IP ไม่ถูกต้อง" });
+    var ban = await db.IpBans.SingleOrDefaultAsync(x => x.Ip == ip);
+    var restored = await db.Accounts.Where(x => x.Ip == ip && x.Status == "banned").ToListAsync();
+    foreach (var account in restored) account.Status = "active";
+    var wasActive = ban?.Active == true;
+    if (ban is not null) { ban.Active = false; ban.ReleasedAt = DateTime.UtcNow; ban.ReleasedBy = user.Identity?.Name ?? "owner"; }
+    db.SecurityLogs.Add(new SecurityLog { Username = user.Identity?.Name ?? "owner", Ip = ip, Role = "owner", Action = "ip-unban", Reason = string.IsNullOrWhiteSpace(req.Reason) ? "ปลดระงับ IP" : req.Reason.Trim(), CreatedAt = DateTime.UtcNow });
+    await db.SaveChangesAsync();
+    return Results.Ok(new { success = true, ip, wasActive, restoredAccounts = restored.Count, active = false });
 });
 adminApi.MapPost("/ip-bans/{id:int}/release", async (int id, ClaimsPrincipal user, AppDb db) =>
 {
@@ -774,10 +790,12 @@ app.MapPost("/api/security/devtools-report", async (SecurityReport req, ClaimsPr
     var ip = GetClientIp(http);
     if (await IsIpBanned(db, ip)) return Results.Ok(new { banned = true });
     var reason = string.IsNullOrWhiteSpace(req.Reason) ? "ตรวจพบการพยายามเปิด Developer Tools" : req.Reason.Trim();
-    db.IpBans.Add(new IpBan { Ip = ip, Reason = reason, BannedBy = "system", Active = true, CreatedAt = DateTime.UtcNow });
+    var existingBan = await db.IpBans.SingleOrDefaultAsync(x => x.Ip == ip);
+    if (existingBan is null) db.IpBans.Add(new IpBan { Ip = ip, Reason = reason, BannedBy = "system", Active = true, CreatedAt = DateTime.UtcNow });
+    else { existingBan.Active = true; existingBan.Reason = reason; existingBan.BannedBy = "system"; existingBan.ReleasedAt = null; existingBan.ReleasedBy = null; }
     db.SecurityLogs.Add(new SecurityLog { Username = username, Ip = ip, Role = role, Action = "auto-ip-ban", Reason = reason, CreatedAt = DateTime.UtcNow });
     var account = await db.Accounts.SingleOrDefaultAsync(x => x.Username == username);
-    if (account is not null) account.Status = "banned";
+    if (account is not null && !string.Equals(account.Role, "admin", StringComparison.OrdinalIgnoreCase)) account.Status = "banned";
     var sessions = await db.Sessions.Where(x => x.Ip == ip && x.Active).ToListAsync();
     foreach (var session in sessions) session.Active = false;
     await db.SaveChangesAsync();
