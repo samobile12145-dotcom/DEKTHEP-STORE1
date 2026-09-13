@@ -113,10 +113,20 @@ using (var scope = app.Services.CreateScope())
         cmd.CommandText = @"CREATE TABLE IF NOT EXISTS Accounts (Id INTEGER PRIMARY KEY AUTOINCREMENT, Username TEXT NOT NULL UNIQUE, PasswordHash TEXT NOT NULL, Role TEXT NOT NULL DEFAULT 'user', Ip TEXT NOT NULL DEFAULT '', Status TEXT NOT NULL DEFAULT 'active', CreatedAt TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS IpBans (Id INTEGER PRIMARY KEY AUTOINCREMENT, Ip TEXT NOT NULL UNIQUE, Reason TEXT NOT NULL DEFAULT '', BannedBy TEXT NOT NULL DEFAULT 'system', Active INTEGER NOT NULL DEFAULT 1, CreatedAt TEXT NOT NULL, ReleasedAt TEXT NULL, ReleasedBy TEXT NULL);
 CREATE TABLE IF NOT EXISTS SecurityLogs (Id INTEGER PRIMARY KEY AUTOINCREMENT, Username TEXT NOT NULL DEFAULT '', Ip TEXT NOT NULL DEFAULT '', Role TEXT NOT NULL DEFAULT '', Action TEXT NOT NULL, Reason TEXT NOT NULL DEFAULT '', CreatedAt TEXT NOT NULL);
-CREATE TABLE IF NOT EXISTS TeamMessages (Id INTEGER PRIMARY KEY AUTOINCREMENT, Username TEXT NOT NULL DEFAULT '', Message TEXT NOT NULL, CreatedAt TEXT NOT NULL);";
+CREATE TABLE IF NOT EXISTS TeamMessages (Id INTEGER PRIMARY KEY AUTOINCREMENT, Username TEXT NOT NULL DEFAULT '', Message TEXT NOT NULL, CreatedAt TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS Roles (Id INTEGER PRIMARY KEY AUTOINCREMENT, RoleKey TEXT NOT NULL UNIQUE, DisplayName TEXT NOT NULL, CanCreateLicense INTEGER NOT NULL DEFAULT 0, CreatedAt TEXT NOT NULL);";
         cmd.ExecuteNonQuery();
     }
     catch { }
+    // Seed built-in roles. admin is reserved for the Owner and is never assignable to accounts.
+    if (!db.Roles.Any())
+    {
+        db.Roles.AddRange(
+            new Role { RoleKey = "user", DisplayName = "ผู้ใช้ทั่วไป", CanCreateLicense = false, CreatedAt = DateTime.UtcNow },
+            new Role { RoleKey = "moderator", DisplayName = "ผู้ดูแล", CanCreateLicense = true, CreatedAt = DateTime.UtcNow }
+        );
+        db.SaveChanges();
+    }
 }
 
 app.UseForwardedHeaders();
@@ -127,7 +137,7 @@ app.UseSwaggerUI();
 app.UseAuthentication();
 app.Use(async (http, next) =>
 {
-    if (http.User.Identity?.IsAuthenticated == true && !string.Equals(http.User.FindFirst(ClaimTypes.Role)?.Value, "admin", StringComparison.OrdinalIgnoreCase))
+    if (http.User.Identity?.IsAuthenticated == true && !IsOwnerIdentity(http.User))
     {
         var db = http.RequestServices.GetRequiredService<AppDb>();
         var ip = GetClientIp(http);
@@ -223,6 +233,15 @@ app.MapPost("/api/auth/license-login", async (LicenseLoginRequest req, HttpConte
 });
 
 var api = app.MapGroup("/api").RequireAuthorization();
+api.MapGet("/me/role", async (ClaimsPrincipal user, AppDb db) =>
+{
+    var role = user.FindFirst(ClaimTypes.Role)?.Value ?? "user";
+    var isOwner = IsOwnerIdentity(user);
+    if (isOwner) return Results.Ok(new { role = "admin", displayName = "Owner", canCreateLicense = true, owner = true });
+    var r = await db.Roles.AsNoTracking().FirstOrDefaultAsync(x => x.RoleKey == role);
+    return Results.Ok(new { role, displayName = r?.DisplayName ?? role, canCreateLicense = role == "moderator" || r?.CanCreateLicense == true, owner = false });
+});
+
 var adminApi = app.MapGroup("/api").RequireAuthorization(new AuthorizeAttribute { Roles = "admin" });
 
 // External Panel API. Set PANEL_API_KEY in Railway to enable API-key access.
@@ -258,11 +277,51 @@ panelApi.MapPut("/accounts/{id:int}/role", async (int id, RoleUpdate req, AppDb 
 {
     var account = await db.Accounts.FindAsync(id);
     if (account is null) return Results.NotFound(new { success = false, message = "Account not found" });
-    var role = (req.Role ?? "user").Trim().ToLowerInvariant();
-    if (role is not ("user" or "moderator")) return Results.BadRequest(new { success = false, message = "Role must be user or moderator" });
+    var role = NormalizeRoleKey(req.Role);
+    if (role == "admin") return Results.BadRequest(new { success = false, message = "admin เป็นยศของ Owner และไม่สามารถมอบให้บัญชีได้" });
+    if (!await db.Roles.AnyAsync(x => x.RoleKey == role)) return Results.BadRequest(new { success = false, message = "ไม่พบยศนี้" });
     account.Role = role;
+    db.SecurityLogs.Add(new SecurityLog { Username = account.Username, Ip = account.Ip, Role = role, Action = "role-change", Reason = "เปลี่ยนยศโดย Owner", CreatedAt = DateTime.UtcNow });
     await db.SaveChangesAsync();
     return Results.Ok(new { success = true, account.Id, account.Username, account.Role });
+});
+panelApi.MapGet("/roles", async (AppDb db) => Results.Ok(await db.Roles.AsNoTracking().OrderBy(x => x.Id).ToListAsync()));
+panelApi.MapPost("/roles", async (RoleCreate req, AppDb db) =>
+{
+    var key = NormalizeRoleKey(req.RoleKey);
+    var display = (req.DisplayName ?? "").Trim();
+    if (!IsValidRoleKey(key)) return Results.BadRequest(new { success = false, message = "Role key ต้องเป็น a-z, 0-9, _ หรือ - และยาว 2-32 ตัว" });
+    if (key == "admin") return Results.BadRequest(new { success = false, message = "admin เป็นยศสงวนของ Owner" });
+    if (string.IsNullOrWhiteSpace(display) || display.Length > 50) return Results.BadRequest(new { success = false, message = "ชื่อยศต้องมี 1-50 ตัว" });
+    if (await db.Roles.AnyAsync(x => x.RoleKey == key)) return Results.Conflict(new { success = false, message = "ยศนี้มีอยู่แล้ว" });
+    var role = new Role { RoleKey = key, DisplayName = display, CanCreateLicense = req.CanCreateLicense, CreatedAt = DateTime.UtcNow };
+    db.Roles.Add(role);
+    db.SecurityLogs.Add(new SecurityLog { Username = "panel-api", Ip = "", Role = "admin", Action = "role-create", Reason = key, CreatedAt = DateTime.UtcNow });
+    await db.SaveChangesAsync();
+    return Results.Ok(new { success = true, role });
+});
+panelApi.MapPut("/roles/{id:int}", async (int id, RoleCreate req, AppDb db) =>
+{
+    var role = await db.Roles.FindAsync(id);
+    if (role is null) return Results.NotFound(new { success = false, message = "Role not found" });
+    if (role.RoleKey == "admin") return Results.BadRequest(new { success = false, message = "admin เป็นยศสงวนของ Owner" });
+    var display = (req.DisplayName ?? role.DisplayName).Trim();
+    if (string.IsNullOrWhiteSpace(display) || display.Length > 50) return Results.BadRequest(new { success = false, message = "ชื่อยศต้องมี 1-50 ตัว" });
+    role.DisplayName = display; role.CanCreateLicense = req.CanCreateLicense;
+    await db.SaveChangesAsync();
+    return Results.Ok(new { success = true, role });
+});
+panelApi.MapDelete("/roles/{id:int}", async (int id, AppDb db) =>
+{
+    var role = await db.Roles.FindAsync(id);
+    if (role is null) return Results.NotFound(new { success = false, message = "Role not found" });
+    if (role.RoleKey is "admin" or "user" or "moderator") return Results.BadRequest(new { success = false, message = "ยศระบบไม่สามารถลบได้" });
+    var accounts = await db.Accounts.Where(x => x.Role == role.RoleKey).ToListAsync();
+    foreach (var a in accounts) a.Role = "user";
+    db.Roles.Remove(role);
+    db.SecurityLogs.Add(new SecurityLog { Username = "panel-api", Ip = "", Role = "admin", Action = "role-delete", Reason = role.RoleKey, CreatedAt = DateTime.UtcNow });
+    await db.SaveChangesAsync();
+    return Results.Ok(new { success = true, reassigned = accounts.Count });
 });
 panelApi.MapGet("/sessions", async (AppDb db) => Results.Ok(await db.Sessions.AsNoTracking().OrderByDescending(x => x.Id).ToListAsync()));
 panelApi.MapGet("/ip-bans", async (AppDb db) => Results.Ok(await db.IpBans.AsNoTracking().OrderByDescending(x => x.Id).ToListAsync()));
@@ -324,6 +383,49 @@ panelApi.MapPost("/team-chat", async (TeamMessageRequest req, AppDb db) =>
     if (message.Length == 0 || message.Length > 2000) return Results.BadRequest(new { success = false, message = "Message must be 1-2000 characters" });
     var item = new TeamMessage { Username = "panel-api", Message = message, CreatedAt = DateTime.UtcNow };
     db.TeamMessages.Add(item); await db.SaveChangesAsync(); return Results.Ok(item);
+});
+
+// Owner-only role management.
+adminApi.MapGet("/accounts", async (AppDb db) => Results.Ok(await db.Accounts.AsNoTracking().Select(x => new { x.Id, x.Username, x.Role, x.Ip, x.Status, x.CreatedAt }).OrderByDescending(x => x.Id).ToListAsync()));
+adminApi.MapPut("/accounts/{id:int}/role", async (int id, RoleUpdate req, AppDb db) =>
+{
+    var account = await db.Accounts.FindAsync(id);
+    if (account is null) return Results.NotFound(new { message = "ไม่พบบัญชี" });
+    var role = NormalizeRoleKey(req.Role);
+    if (role == "admin") return Results.BadRequest(new { message = "admin เป็นยศสงวนของ Owner" });
+    if (!await db.Roles.AnyAsync(x => x.RoleKey == role)) return Results.BadRequest(new { message = "ไม่พบยศนี้" });
+    account.Role = role;
+    db.SecurityLogs.Add(new SecurityLog { Username = account.Username, Ip = account.Ip, Role = role, Action = "role-change", Reason = "เปลี่ยนยศโดย Owner", CreatedAt = DateTime.UtcNow });
+    await db.SaveChangesAsync();
+    return Results.Ok(new { success = true, account.Id, account.Username, account.Role });
+});
+adminApi.MapGet("/roles", async (AppDb db) => Results.Ok(await db.Roles.OrderBy(x => x.Id).ToListAsync()));
+adminApi.MapPost("/roles", async (RoleCreate req, ClaimsPrincipal user, AppDb db) =>
+{
+    var key = NormalizeRoleKey(req.RoleKey); var display = (req.DisplayName ?? "").Trim();
+    if (!IsValidRoleKey(key)) return Results.BadRequest(new { message = "Role key ไม่ถูกต้อง" });
+    if (key == "admin") return Results.BadRequest(new { message = "admin เป็นยศสงวนของ Owner" });
+    if (string.IsNullOrWhiteSpace(display) || display.Length > 50) return Results.BadRequest(new { message = "ชื่อยศต้องมี 1-50 ตัว" });
+    if (await db.Roles.AnyAsync(x => x.RoleKey == key)) return Results.Conflict(new { message = "ยศนี้มีอยู่แล้ว" });
+    var role = new Role { RoleKey = key, DisplayName = display, CanCreateLicense = req.CanCreateLicense, CreatedAt = DateTime.UtcNow };
+    db.Roles.Add(role);
+    db.SecurityLogs.Add(new SecurityLog { Username = user.Identity?.Name ?? "owner", Ip = "", Role = "admin", Action = "role-create", Reason = key, CreatedAt = DateTime.UtcNow });
+    await db.SaveChangesAsync(); return Results.Ok(role);
+});
+adminApi.MapPut("/roles/{id:int}", async (int id, RoleCreate req, AppDb db) =>
+{
+    var role = await db.Roles.FindAsync(id); if (role is null) return Results.NotFound();
+    if (role.RoleKey == "admin") return Results.BadRequest(new { message = "admin เป็นยศสงวนของ Owner" });
+    var display = (req.DisplayName ?? role.DisplayName).Trim();
+    if (string.IsNullOrWhiteSpace(display) || display.Length > 50) return Results.BadRequest(new { message = "ชื่อยศต้องมี 1-50 ตัว" });
+    role.DisplayName = display; role.CanCreateLicense = req.CanCreateLicense; await db.SaveChangesAsync(); return Results.Ok(role);
+});
+adminApi.MapDelete("/roles/{id:int}", async (int id, AppDb db) =>
+{
+    var role = await db.Roles.FindAsync(id); if (role is null) return Results.NotFound();
+    if (role.RoleKey is "admin" or "user" or "moderator") return Results.BadRequest(new { message = "ยศระบบไม่สามารถลบได้" });
+    var accounts = await db.Accounts.Where(x => x.Role == role.RoleKey).ToListAsync(); foreach (var a in accounts) a.Role = "user";
+    db.Roles.Remove(role); await db.SaveChangesAsync(); return Results.Ok(new { success = true, reassigned = accounts.Count });
 });
 
 // Owner-only IP suspension management.
@@ -399,9 +501,22 @@ adminApi.MapDelete("/apps/{id:int}", async (int id, AppDb db) =>
     db.Apps.Remove(x); await db.SaveChangesAsync(); return Results.NoContent();
 });
 
-adminApi.MapGet("/licenses", async (AppDb db) => Results.Ok(await db.Licenses.OrderByDescending(x => x.Id).ToListAsync()));
-adminApi.MapPost("/licenses", async (LicenseCreate req, AppDb db, CancellationToken ct) =>
+api.MapGet("/licenses", async (ClaimsPrincipal user, AppDb db) =>
 {
+    var role = user.FindFirst(ClaimTypes.Role)?.Value ?? "";
+    if (!await CanCreateLicense(db, role)) return Results.Forbid();
+    return Results.Ok(await db.Licenses.AsNoTracking().OrderByDescending(x => x.Id).ToListAsync());
+});
+api.MapGet("/license-context/apps", async (ClaimsPrincipal user, AppDb db) =>
+{
+    var role = user.FindFirst(ClaimTypes.Role)?.Value ?? "";
+    if (!await CanCreateLicense(db, role)) return Results.Forbid();
+    return Results.Ok(await db.Apps.AsNoTracking().Where(x => x.Status == "active").OrderByDescending(x => x.Id).ToListAsync());
+});
+api.MapPost("/licenses", async (LicenseCreate req, ClaimsPrincipal user, AppDb db, CancellationToken ct) =>
+{
+    var role = user.FindFirst(ClaimTypes.Role)?.Value ?? "";
+    if (!await CanCreateLicense(db, role)) return Results.Forbid();
     if (req.AppId <= 0 || !await db.Apps.AnyAsync(x => x.Id == req.AppId, ct))
         return Results.BadRequest(new { message = "ไม่พบแอปที่เลือก" });
 
@@ -599,7 +714,7 @@ app.MapPost("/api/security/devtools-report", async (SecurityReport req, ClaimsPr
 {
     var role = user.FindFirst(ClaimTypes.Role)?.Value ?? "";
     var username = user.Identity?.Name ?? "";
-    if (string.Equals(role, "admin", StringComparison.OrdinalIgnoreCase)) return Results.Ok(new { ignored = true, owner = true });
+    if (IsOwnerIdentity(user)) return Results.Ok(new { ignored = true, owner = true });
     var ip = GetClientIp(http);
     if (await IsIpBanned(db, ip)) return Results.Ok(new { banned = true });
     var reason = string.IsNullOrWhiteSpace(req.Reason) ? "ตรวจพบการพยายามเปิด Developer Tools" : req.Reason.Trim();
@@ -628,6 +743,21 @@ app.MapPost("/client/license/validate", async (ValidateRequest req, HttpContext 
 
 app.MapFallbackToFile("index.html");
 app.Run();
+
+static bool IsOwnerIdentity(ClaimsPrincipal user)
+{
+    var configured = Environment.GetEnvironmentVariable("OWNER_USERNAME") ?? "";
+    var username = user.FindFirst(ClaimTypes.Name)?.Value ?? user.Identity?.Name ?? "";
+    return !string.IsNullOrWhiteSpace(configured) && string.Equals(username, configured, StringComparison.Ordinal);
+}
+static string NormalizeRoleKey(string? value) => (value ?? "").Trim().ToLowerInvariant();
+static bool IsValidRoleKey(string key) => key.Length is >= 2 and <= 32 && key.All(c => char.IsLetterOrDigit(c) || c == '_' || c == '-');
+
+static async Task<bool> CanCreateLicense(AppDb db, string role)
+{
+    if (role is "admin" or "moderator") return true;
+    return await db.Roles.AnyAsync(x => x.RoleKey == role && x.CanCreateLicense);
+}
 
 static string GetClientIp(HttpContext http)
 {
@@ -698,6 +828,7 @@ record LoginRequest(string Username, string Password);
 record RegisterRequest(string Username, string Password);
 record IpBanRequest(string Ip, string? Reason);
 record RoleUpdate(string? Role);
+record RoleCreate(string? RoleKey, string? DisplayName, bool CanCreateLicense = false);
 record SecurityReport(string? Reason);
 record TeamMessageRequest(string? Message);
 record LicenseLoginRequest(string Key, string? HwId);
@@ -710,6 +841,7 @@ class AppDb : DbContext
 {
     public AppDb(DbContextOptions<AppDb> o) : base(o) { }
     public DbSet<Admin> Admins => Set<Admin>(); public DbSet<Profile> Profiles => Set<Profile>(); public DbSet<AppRecord> Apps => Set<AppRecord>(); public DbSet<License> Licenses => Set<License>(); public DbSet<User> Users => Set<User>(); public DbSet<Token> Tokens => Set<Token>(); public DbSet<Subscription> Subscriptions => Set<Subscription>(); public DbSet<Session> Sessions => Set<Session>(); public DbSet<Setting> Settings => Set<Setting>(); public DbSet<Account> Accounts => Set<Account>(); public DbSet<IpBan> IpBans => Set<IpBan>(); public DbSet<SecurityLog> SecurityLogs => Set<SecurityLog>(); public DbSet<TeamMessage> TeamMessages => Set<TeamMessage>();
+    public DbSet<Role> Roles => Set<Role>();
 }
 class Admin { public int Id { get; set; } public string Username { get; set; } = ""; public string PasswordHash { get; set; } = ""; }
 class Profile { public int Id { get; set; } public string Username { get; set; } = ""; public string DisplayName { get; set; } = ""; public string Bio { get; set; } = ""; public string Avatar { get; set; } = "user"; public string AvatarData { get; set; } = ""; public DateTime UpdatedAt { get; set; } = DateTime.UtcNow; }
@@ -724,3 +856,4 @@ class Account { public int Id { get; set; } public string Username { get; set; }
 class IpBan { public int Id { get; set; } public string Ip { get; set; } = ""; public string Reason { get; set; } = ""; public string BannedBy { get; set; } = "system"; public bool Active { get; set; } = true; public DateTime CreatedAt { get; set; } = DateTime.UtcNow; public DateTime? ReleasedAt { get; set; } public string? ReleasedBy { get; set; } }
 class SecurityLog { public int Id { get; set; } public string Username { get; set; } = ""; public string Ip { get; set; } = ""; public string Role { get; set; } = ""; public string Action { get; set; } = ""; public string Reason { get; set; } = ""; public DateTime CreatedAt { get; set; } = DateTime.UtcNow; }
 class TeamMessage { public int Id { get; set; } public string Username { get; set; } = ""; public string Message { get; set; } = ""; public DateTime CreatedAt { get; set; } = DateTime.UtcNow; }
+class Role { public int Id { get; set; } public string RoleKey { get; set; } = ""; public string DisplayName { get; set; } = ""; public bool CanCreateLicense { get; set; } public DateTime CreatedAt { get; set; } = DateTime.UtcNow; }
