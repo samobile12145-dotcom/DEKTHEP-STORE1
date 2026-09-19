@@ -296,6 +296,11 @@ html.is-loading #login,html.is-loading #app{visibility:hidden!important;opacity:
 #startupLoader{display:none!important;}
 @media(max-width:560px){#login{padding:14px!important}.dekthep-loginbox{padding:20px 18px 21px!important}.dekthep-logo-wrap{height:114px!important}.dekthep-login-logo{width:120px!important;height:120px!important}}
 
+
+/* Fix login overlay after successful authentication. The #login styling uses !important,
+   so the generic .hidden rule cannot hide it. */
+#login.hidden { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }
+#app.hidden { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }
 </style>
 </head>
 <body>
