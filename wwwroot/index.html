@@ -260,6 +260,24 @@ html.is-loading #login,html.is-loading #app{visibility:hidden!important;opacity:
 .layout{position:relative;background:transparent}
 .main{position:relative;background:rgba(5,7,11,.30)}
 @media (prefers-reduced-motion:reduce){.meteor{animation:none!important;display:none}}
+
+/* DEKTHEP STORE login refresh */
+.login{position:relative;min-height:100vh;overflow:hidden;background:radial-gradient(circle at 18% 20%,rgba(0,126,220,.16),transparent 27%),radial-gradient(circle at 84% 68%,rgba(0,117,255,.12),transparent 30%),linear-gradient(135deg,#020b14 0%,#061827 48%,#02070d 100%)!important}
+.login:before{content:"";position:absolute;inset:-20%;background:repeating-linear-gradient(115deg,transparent 0 135px,rgba(33,157,224,.13) 136px,transparent 138px 285px);transform:rotate(-1deg);pointer-events:none}
+.dekthep-loginbox{position:relative;z-index:2;width:510px!important;max-width:calc(100vw - 28px);padding:24px 28px 25px!important;border-radius:18px!important;background:linear-gradient(145deg,rgba(5,30,47,.94),rgba(2,15,25,.94))!important;border:1px solid rgba(52,181,239,.38)!important;box-shadow:0 30px 100px rgba(0,0,0,.62),0 0 55px rgba(0,139,220,.13)!important}
+.dekthep-logo-wrap{display:flex;justify-content:center;align-items:center;height:130px;margin:-4px 0 -6px}
+.dekthep-login-logo{width:138px;height:138px;object-fit:contain;filter:drop-shadow(0 0 18px rgba(0,124,255,.42))}
+.dekthep-loginbox .loginlogo{font-size:27px;letter-spacing:.2px;margin:0;text-shadow:0 0 22px rgba(51,190,255,.25)}
+.dekthep-loginbox>p{margin:3px 0 17px;color:#8fb0c1}
+.owner-card{display:flex;align-items:center;gap:13px;padding:10px 13px;margin:0 0 17px;border:1px solid #168dff;border-radius:10px;background:linear-gradient(100deg,rgba(0,91,160,.25),rgba(3,24,40,.62));box-shadow:0 0 22px rgba(0,124,255,.12),inset 0 0 20px rgba(0,130,255,.05)}
+.owner-avatar{width:56px;height:56px;flex:0 0 56px;border-radius:50%;overflow:hidden;border:2px solid #178cff;background:#02111d;display:grid;place-items:center;box-shadow:0 0 18px rgba(0,132,255,.25)}
+.owner-avatar img{width:100%;height:100%;object-fit:cover}
+.owner-copy{display:flex;flex-direction:column;gap:2px}.owner-copy strong{font-size:17px;color:#fff}.owner-copy span{font-size:11px;color:#8caebf}.owner-check{margin-left:auto;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#087ef0;color:#fff;font-weight:900;box-shadow:0 0 14px rgba(0,126,255,.45)}
+.dekthep-loginbox .field{margin:12px 0}.dekthep-loginbox .field label{font-weight:600;font-size:12px;color:#dceaf1}.dekthep-loginbox .input{height:48px;border-radius:9px;background:rgba(1,13,22,.82);border-color:rgba(39,128,171,.5);box-shadow:inset 0 0 15px rgba(0,0,0,.12)}.dekthep-loginbox .input:focus{border-color:#12a5ff;box-shadow:0 0 0 2px rgba(18,165,255,.09),0 0 20px rgba(0,128,255,.1)}
+.dekthep-login-btn{height:48px!important;margin-top:4px;border-radius:9px!important;background:linear-gradient(100deg,#096cf4,#08a7f5)!important;box-shadow:0 8px 28px rgba(0,111,255,.27)!important;font-size:14px}
+.dekthep-loginbox .hint{color:#678899;margin-top:15px}.dekthep-loginbox .error{margin-top:9px}
+@media(max-width:560px){.dekthep-loginbox{padding:20px 18px 21px!important}.dekthep-logo-wrap{height:112px}.dekthep-login-logo{width:120px;height:120px}.dekthep-loginbox .loginlogo{font-size:23px}}
+
 </style>
 </head>
 <body>
@@ -283,13 +301,22 @@ html.is-loading #login,html.is-loading #app{visibility:hidden!important;opacity:
 </div>
 
 <div id="login" class="login">
-  <div class="loginbox">
-    <div class="loginlogo">KeyAuth</div><p>เข้าสู่ระบบเพื่อจัดการแอปพลิเคชัน</p>
-    <div class="tabs"><button id="tabOwner" class="tab active" onclick="setAuthMode('admin')">Owner</button><button id="tabUser" class="tab" onclick="setAuthMode('user')">บัญชีผู้ใช้</button><button id="tabRegister" class="tab" onclick="setAuthMode('register')">สมัครบัญชี</button></div>
-    <div id="adminForm"><div class="field"><label>ชื่อผู้ใช้ Owner</label><input id="u" class="input" placeholder="OWNER_USERNAME" autocomplete="username"></div><div class="field"><label>รหัสผ่าน</label><input id="p" class="input" type="password" placeholder="OWNER_PASSWORD" autocomplete="current-password" onkeydown="if(event.key==='Enter')adminLogin()"></div><button class="btn blue wide" onclick="adminLogin()">เข้าสู่ระบบ Owner →</button></div>
-    <div id="userForm" class="hidden"><div class="field"><label>ชื่อผู้ใช้</label><input id="uu" class="input" placeholder="Username" autocomplete="username"></div><div class="field"><label>รหัสผ่าน</label><input id="up" class="input" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')userLogin()"></div><button class="btn blue wide" onclick="userLogin()">เข้าสู่ระบบ →</button></div>
-    <div id="registerForm" class="hidden"><div class="field"><label>ชื่อผู้ใช้</label><input id="ru" class="input" placeholder="อย่างน้อย 3 ตัว"></div><div class="field"><label>รหัสผ่าน</label><input id="rp" class="input" type="password" placeholder="อย่างน้อย 6 ตัว"></div><div class="field"><label>ยืนยันรหัสผ่าน</label><input id="rc" class="input" type="password" placeholder="กรอกรหัสผ่านอีกครั้ง" onkeydown="if(event.key==='Enter')registerAccount()"></div><button class="btn green wide" onclick="registerAccount()">สมัครบัญชี →</button></div>
-    <div id="err" class="error"></div><div id="authHint" class="hint">บัญชี Owner ถูกกำหนดจาก Railway Variables: OWNER_USERNAME และ OWNER_PASSWORD</div>
+  <div class="loginbox dekthep-loginbox">
+    <div class="dekthep-logo-wrap"><img class="dekthep-login-logo" src="/dekthep-store-logo.png" alt="DEKTHEP STORE"></div>
+    <div class="loginlogo">DEKTHEP STORE</div>
+    <p>เข้าสู่ระบบเพื่อจัดการแอปพลิเคชัน</p>
+    <div class="owner-card">
+      <div class="owner-avatar"><img src="/dekthep-store-logo.png" alt="Owner"></div>
+      <div class="owner-copy"><strong>Owner</strong><span>ผู้ดูแลระบบ</span></div>
+      <span class="owner-check">✓</span>
+    </div>
+    <div id="adminForm">
+      <div class="field"><label>ชื่อผู้ใช้</label><input id="u" class="input" placeholder="Username" autocomplete="username"></div>
+      <div class="field"><label>รหัสผ่าน</label><input id="p" class="input" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')adminLogin()"></div>
+      <button class="btn blue wide dekthep-login-btn" onclick="adminLogin()">เข้าสู่ระบบ →</button>
+    </div>
+    <div id="err" class="error"></div>
+    <div id="authHint" class="hint">บัญชี Owner ถูกกำหนดจาก Railway Variables: OWNER_USERNAME และ OWNER_PASSWORD</div>
   </div>
 </div>
 
@@ -362,13 +389,13 @@ function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&l
 function jsq(v){return String(v??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}
 let toastTimer;function toast(m,type='success'){$('toast').textContent=m;$('toast').className='toast '+type;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.add('hidden'),2600)}
 async function api(path,opt={}){opt.headers={...(opt.headers||{}),'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})};let r=await fetch('/api'+path,opt);if(r.status===401){logout();throw new Error('Unauthorized')}if(r.status===403){window.location.href='/blocked.html';throw new Error('IP ถูกระงับ')}let data=null;try{data=await r.json()}catch{}if(!r.ok)throw new Error(data?.message||'เกิดข้อผิดพลาด');return data}
-function setAuthMode(mode){authMode=mode;['admin','user','register'].forEach(m=>{const b=$('tab'+(m==='admin'?'Owner':m==='user'?'User':'Register'));if(b)b.classList.toggle('active',m===mode)});$('adminForm').classList.toggle('hidden',mode!=='admin');$('userForm').classList.toggle('hidden',mode!=='user');$('registerForm').classList.toggle('hidden',mode!=='register');$('err').textContent='';$('authHint').textContent=mode==='admin'?'บัญชี Owner ถูกกำหนดจาก Railway Variables: OWNER_USERNAME และ OWNER_PASSWORD':mode==='user'?'เข้าสู่ระบบด้วยบัญชีที่สมัครไว้':'สร้างบัญชีผู้ใช้ใหม่สำหรับเข้าใช้งานแบบจำกัดสิทธิ์'}
+function setAuthMode(mode='admin'){authMode='admin';$('adminForm').classList.remove('hidden');$('err').textContent='';$('authHint').textContent='บัญชี Owner ถูกกำหนดจาก Railway Variables: OWNER_USERNAME และ OWNER_PASSWORD'}
 async function adminLogin(){try{const username=$('u').value.trim(),password=$('p').value;if(!username||!password)throw new Error('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน');let r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({Username:username,Password:password})});if(!r.ok)throw new Error(r.status===503?'ยังไม่ได้ตั้ง OWNER_USERNAME / OWNER_PASSWORD บน Railway':'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');let x=await r.json();startSession(x,'admin')}catch(e){$('err').textContent=e.message||'เข้าสู่ระบบไม่สำเร็จ'}}
 async function userLogin(){try{const username=$('uu').value.trim(),password=$('up').value;if(!username||!password)throw new Error('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน');let r=await fetch('/api/auth/user-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({Username:username,Password:password})});if(r.status===403){window.location.href='/blocked.html';return}if(!r.ok)throw new Error('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');let x=await r.json();startSession(x,'user')}catch(e){$('err').textContent=e.message||'เข้าสู่ระบบไม่สำเร็จ'}}
 async function registerAccount(){try{const username=$('ru').value.trim(),password=$('rp').value,confirmPassword=$('rc').value;if(password!==confirmPassword)throw new Error('รหัสผ่านยืนยันไม่ตรงกัน');let r=await fetch('/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({Username:username,Password:password})});if(r.status===403){window.location.href='/blocked.html';return}let x=null;try{x=await r.json()}catch{}if(!r.ok)throw new Error(x?.message||'สมัครบัญชีไม่สำเร็จ');startSession(x,'user')}catch(e){$('err').textContent=e.message||'สมัครบัญชีไม่สำเร็จ'}}
 function applyRoleVisibility(){const isOwner=currentRole==='owner';const isAdmin=currentRole==='admin';const canLicense=isOwner||currentCanCreateLicense;document.querySelectorAll('.admin-only').forEach(x=>x.style.display=(isOwner||isAdmin)?'flex':'none');document.querySelectorAll('.owner-only').forEach(x=>x.style.display=isOwner?'flex':'none');const licNav=document.querySelector('[data-page=licenses]');if(licNav)licNav.style.display=canLicense?'flex':'none';if(!canLicense&&['apps','licenses','users','tokens','subscriptions','sessions','teamchat','ipbans','roles','settings'].includes(current))page('profile')}
 function startSession(x,mode){token=x.token;authMode=mode;currentRole=x.role||(mode==='admin'?'owner':mode==='license'?'client':'user');localStorage.setItem('token',token);localStorage.setItem('authMode',mode);localStorage.setItem('role',currentRole);$('login').classList.add('hidden');$('app').classList.remove('hidden');$('accountName').textContent=x.username||'admin';$('accountRole').textContent=currentRole==='owner'?'Owner':currentRole==='admin'?'แอดมิน':currentRole;hydrateAccount().finally(()=>{applyRoleVisibility();page(mode==='admin'?'apps':'profile')})}
-function logout(){localStorage.removeItem('token');localStorage.removeItem('authMode');localStorage.removeItem('role');token='';authMode='admin';currentRole='owner';$('app').classList.add('hidden');$('login').classList.remove('hidden');$('p').value='';$('up').value='';$('rp').value='';$('rc').value='';$('err').textContent='';setAuthMode('admin')}
+function logout(){localStorage.removeItem('token');localStorage.removeItem('authMode');localStorage.removeItem('role');token='';authMode='admin';currentRole='owner';$('app').classList.add('hidden');$('login').classList.remove('hidden');$('p').value='';$('err').textContent='';setAuthMode('admin')}
 async function page(name,el){if(!currentCanCreateLicense&&currentRole!=='admin'&&currentRole!=='owner'&&['apps','licenses','users','tokens','subscriptions','sessions','teamchat','ipbans','roles','settings'].includes(name))name='profile';if(name==='ipbans'&&currentRole!=='owner')name='profile';if(currentRole!=='owner'&&currentRole!=='admin'&&name!=='licenses'&&name!=='profile')name='profile';current=name;document.querySelectorAll('.nav').forEach(x=>x.classList.toggle('active',x.dataset.page===name));let fn={apps,licenses,users,roles,tokens,subscriptions:subs,sessions,teamchat,ipbans,profile,settings}[name];if(!fn)return;showPageLoading();try{await fn()}catch(e){if(e?.message!=='Unauthorized'){$('content').innerHTML='<div class="card section error-state"><h2>โหลดข้อมูลไม่สำเร็จ</h2><p>'+esc(e.message||'เกิดข้อผิดพลาด')+'</p><button class="btn blue" onclick="page(current)">ลองอีกครั้ง</button></div>';toast(e.message||'เกิดข้อผิดพลาด','error')}}} 
 function showPageLoading(){if(!$('content'))return;$('content').innerHTML='<div class="page-skeleton"><div class="sk-line w30"></div><div class="sk-box"></div><div class="sk-grid"><i></i><i></i><i></i><i></i></div><div class="sk-large"></div></div>'} 
 

@@ -62,7 +62,9 @@ dotnet run
 เปิด `http://localhost:8080`
 
 ## Login
-หน้าเว็บใช้เฉพาะบัญชี Owner จาก `OWNER_USERNAME` และ `OWNER_PASSWORD` แล้ว ไม่มีค่า username/password ฝังไว้ในหน้า Login
+หน้า Login ใช้เฉพาะบัญชี Owner เท่านั้น ไม่มีแท็บบัญชีผู้ใช้/สมัครบัญชีบนหน้าเว็บ และใช้โลโก้ DEKTHEP STORE จาก `wwwroot/dekthep-store-logo.png`
+
+การตรวจสอบสิทธิ์ยังคงใช้ `OWNER_USERNAME` และ `OWNER_PASSWORD` จาก Railway Variables โดยไม่มีการฝังรหัสผ่านไว้ในหน้าเว็บ
 
 ## Panel API
 
