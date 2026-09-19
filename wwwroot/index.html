@@ -301,6 +301,26 @@ html.is-loading #login,html.is-loading #app{visibility:hidden!important;opacity:
    so the generic .hidden rule cannot hide it. */
 #login.hidden { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }
 #app.hidden { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }
+
+/* Compact quick-action buttons in the code preview */
+#codePreviewArea .actions { gap: 8px; align-items: stretch; }
+#codePreviewArea .actions .btn {
+  width: 84px;
+  min-width: 84px;
+  height: 82px;
+  padding: 8px 6px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+#codePreviewArea .actions .btn svg { width: 24px; height: 24px; }
+@media (max-width: 560px) {
+  #codePreviewArea .actions .btn { width: 76px; min-width: 76px; height: 74px; }
+}
 </style>
 </head>
 <body>
