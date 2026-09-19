@@ -278,6 +278,24 @@ html.is-loading #login,html.is-loading #app{visibility:hidden!important;opacity:
 .dekthep-loginbox .hint{color:#678899;margin-top:15px}.dekthep-loginbox .error{margin-top:9px}
 @media(max-width:560px){.dekthep-loginbox{padding:20px 18px 21px!important}.dekthep-logo-wrap{height:112px}.dekthep-login-logo{width:120px;height:120px}.dekthep-loginbox .loginlogo{font-size:23px}}
 
+
+/* Final Owner-only login layout: mirrors the approved DEKTHEP STORE design. */
+#login{display:grid!important;place-items:center!important;min-height:100vh!important;padding:22px!important;}
+#login .owner-only-login{display:block!important;}
+#login .tabs{display:none!important;}
+.dekthep-loginbox{width:510px!important;max-width:calc(100vw - 28px)!important;padding:24px 28px 25px!important;}
+.dekthep-logo-wrap{height:138px!important;margin:-2px 0 -8px!important;}
+.dekthep-login-logo{width:145px!important;height:145px!important;}
+.dekthep-loginbox .loginlogo{font-size:28px!important;font-weight:900!important;}
+.dekthep-loginbox>p{margin:3px 0 18px!important;}
+.owner-card{margin-bottom:18px!important;}
+.dekthep-loginbox .field{margin:13px 0!important;}
+.dekthep-loginbox .field label{margin-bottom:7px!important;}
+.dekthep-loginbox .input{height:48px!important;}
+.dekthep-login-btn{height:48px!important;margin-top:5px!important;}
+#startupLoader{display:none!important;}
+@media(max-width:560px){#login{padding:14px!important}.dekthep-loginbox{padding:20px 18px 21px!important}.dekthep-logo-wrap{height:114px!important}.dekthep-login-logo{width:120px!important;height:120px!important}}
+
 </style>
 </head>
 <body>
@@ -287,37 +305,35 @@ html.is-loading #login,html.is-loading #app{visibility:hidden!important;opacity:
   <div class="arctic-lines"></div>
 </div>
 
-<div id="startupLoader" aria-label="Loading">
-  <div class="frozen-bg"></div><div class="frozen-snow"></div>
-  <div class="frozen-panel">
-    <div class="frozen-title">KRISHU</div>
-    <div class="frozen-edition">FROZEN EDITION</div>
-    <div class="frozen-status" id="loaderStatus">FREEZING</div>
-    <div class="frozen-dots">•••</div>
-    <div class="frozen-progress"><div id="loaderBar" class="frozen-progress-bar"></div></div>
-    <div id="loaderPercent" class="frozen-percent">0%</div>
-    <div class="frozen-version">Version 2.0.0 | Arctic Ice Edition</div>
-  </div>
-</div>
-
 <div id="login" class="login">
-  <div class="loginbox dekthep-loginbox">
-    <div class="dekthep-logo-wrap"><img class="dekthep-login-logo" src="/dekthep-store-logo.png" alt="DEKTHEP STORE"></div>
+  <main class="loginbox dekthep-loginbox owner-only-login" aria-label="DEKTHEP STORE Owner Login">
+    <div class="dekthep-logo-wrap">
+      <img class="dekthep-login-logo" src="/dekthep-store-logo.png?v=2" alt="DEKTHEP STORE">
+    </div>
     <div class="loginlogo">DEKTHEP STORE</div>
     <p>เข้าสู่ระบบเพื่อจัดการแอปพลิเคชัน</p>
-    <div class="owner-card">
-      <div class="owner-avatar"><img src="/dekthep-store-logo.png" alt="Owner"></div>
+
+    <section class="owner-card" aria-label="Owner account">
+      <div class="owner-avatar"><img src="/dekthep-store-logo.png?v=2" alt="Owner"></div>
       <div class="owner-copy"><strong>Owner</strong><span>ผู้ดูแลระบบ</span></div>
-      <span class="owner-check">✓</span>
-    </div>
-    <div id="adminForm">
-      <div class="field"><label>ชื่อผู้ใช้</label><input id="u" class="input" placeholder="Username" autocomplete="username"></div>
-      <div class="field"><label>รหัสผ่าน</label><input id="p" class="input" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')adminLogin()"></div>
-      <button class="btn blue wide dekthep-login-btn" onclick="adminLogin()">เข้าสู่ระบบ →</button>
-    </div>
-    <div id="err" class="error"></div>
+      <span class="owner-check" aria-hidden="true">✓</span>
+    </section>
+
+    <form id="adminForm" onsubmit="event.preventDefault();adminLogin()" autocomplete="on">
+      <div class="field">
+        <label for="u">ชื่อผู้ใช้</label>
+        <input id="u" class="input" placeholder="Username" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="p">รหัสผ่าน</label>
+        <input id="p" class="input" type="password" placeholder="Password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn blue wide dekthep-login-btn">เข้าสู่ระบบ →</button>
+    </form>
+
+    <div id="err" class="error" role="alert" aria-live="polite"></div>
     <div id="authHint" class="hint">บัญชี Owner ถูกกำหนดจาก Railway Variables: OWNER_USERNAME และ OWNER_PASSWORD</div>
-  </div>
+  </main>
 </div>
 
 <div id="app" class="layout hidden">
@@ -555,7 +571,6 @@ function startFrozenLoader(){
     }
   },30);
 }
-startFrozenLoader();
 async function hydrateAccount(){if(!token)return;try{let [p,r]=await Promise.all([api('/profile'),api('/me/role')]);currentRole=r.role||currentRole;currentCanCreateLicense=!!r.canCreateLicense;localStorage.setItem('role',currentRole);localStorage.setItem('canCreateLicense',currentCanCreateLicense?'1':'0');$('accountName').textContent=p.displayName||p.username;$('accountRole').textContent=r.displayName||currentRole;$('avatarIcon').innerHTML=p.avatarData?`<img src="${esc(p.avatarData)}" alt="โปรไฟล์">`:icon(p.avatar||'user')}catch{}}
 function createMeteors(){const field=$('meteorField');if(!field)return;field.innerHTML='';const count=window.innerWidth<700?8:16;for(let i=0;i<count;i++){const m=document.createElement('span');m.className='meteor';m.style.left=(15+Math.random()*120)+'vw';m.style.animationDuration=(4.8+Math.random()*5.5)+'s';m.style.animationDelay=(-Math.random()*12)+'s';m.style.height=(85+Math.random()*150)+'px';m.style.opacity=(.35+Math.random()*.55).toFixed(2);field.appendChild(m)}}
 window.addEventListener('resize',()=>{clearTimeout(window.__meteorResize);window.__meteorResize=setTimeout(createMeteors,180)});
